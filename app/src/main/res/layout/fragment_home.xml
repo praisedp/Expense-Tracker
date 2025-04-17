@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragments.HomeFragment">
+
+
+    <!-- Simple placeholder for Dashboard/Summary -->
+    <TextView
+        android:id="@+id/tvDashboard"
+        android:text="Dashboard - Summary of Income, Expense, Balance"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <!-- Later you can add summary cards and a progress bar here -->
+</FrameLayout>
