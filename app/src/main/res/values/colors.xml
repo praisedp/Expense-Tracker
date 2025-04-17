@@ -2,4 +2,22 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+
+    <!-- Icon colors -->
+    <color name="icon_background">#E3F2FD</color>
+    <color name="icon_tint">#1976D2</color>
+
+    <!-- Amount color will be dynamically set based on positive/negative values -->
+    <color name="amount_color_positive">#4CAF50</color>
+    <color name="amount_color_negative">#F44336</color>
+    <color name="amount_color">@color/amount_color_negative</color>
+
+    <!-- Default category color -->
+    <color name="category_color_default">#E3F2FD</color>
+    <color name="category_color_food">#FFC107</color>
+    <color name="category_color_transport">#2196F3</color>
+    <color name="category_color_shopping">#9C27B0</color>
 </resources>

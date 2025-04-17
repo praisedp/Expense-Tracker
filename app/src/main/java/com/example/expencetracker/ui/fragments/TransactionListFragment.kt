@@ -13,6 +13,7 @@ import com.example.expencetracker.R
 import com.example.expencetracker.adapter.TransactionAdapter
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.data.Transaction
+import com.example.expencetracker.data.Category
 
 class TransactionListFragment : Fragment() {
 
@@ -37,8 +38,9 @@ class TransactionListFragment : Fragment() {
     // Load transactions from SharedPreferences and update adapter
     private fun loadData() {
         transactions = PrefsManager.loadTransactions().toMutableList()
-        val adapter = TransactionAdapter(transactions) { transaction ->
-            // onLongClick callback: confirm deletion
+        // Load categories to pass into the adapter
+        val categories: List<Category> = PrefsManager.loadCategories()
+        val adapter = TransactionAdapter(transactions, categories) { transaction ->
             showDeleteTransactionDialog(transaction)
         }
         recyclerView.adapter = adapter

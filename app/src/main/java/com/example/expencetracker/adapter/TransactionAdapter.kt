@@ -1,18 +1,24 @@
 package com.example.expencetracker.adapter
 
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expencetracker.R
+import com.example.expencetracker.data.Category
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.data.Transaction
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TransactionAdapter(
-    private val transactions: List<Transaction>,
+    private var transactions: List<Transaction>,
+    private val categories: List<Category>,
     private val onLongClick: (Transaction) -> Unit
 ) : RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
 
@@ -21,21 +27,31 @@ class TransactionAdapter(
         private val tvAmount: TextView = itemView.findViewById(R.id.tvAmount)
         private val tvDate: TextView = itemView.findViewById(R.id.tvDate)
         private val tvCategory: TextView = itemView.findViewById(R.id.tvCategory)
+        private val ivCategoryIcon: TextView = itemView.findViewById(R.id.ivCategoryIcon)
 
         fun bind(transaction: Transaction) {
+            // Title
             tvTitle.text = transaction.title
 
-            // Get the current currency from PrefsManager and map it to a symbol.
-            val currentCurrency = PrefsManager.getCurrency()
-            val currencySymbol = getCurrencySymbol(currentCurrency)
+            // Amount formatting with currency symbol and two decimals
+            val currencyCode = PrefsManager.getCurrency()
+            val symbol = getCurrencySymbol(currencyCode)
+            val formattedAmount = transaction.amount.format(2)
+            tvAmount.text = "$symbol$formattedAmount"
 
-            // Format the amount to two decimals.
-            val formattedAmount = String.format("%.2f", transaction.amount)
-            tvAmount.text = "$currencySymbol$formattedAmount"
+            // Color amount green for income, red for expense
+            val colorRes = if (transaction.amount < 0) {
+                R.color.amount_color_negative
+            } else {
+                R.color.amount_color_positive
+            }
+            tvAmount.setTextColor(ContextCompat.getColor(itemView.context, colorRes))
 
-            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            // Date formatting
+            val sdf = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
             tvDate.text = sdf.format(Date(transaction.date))
 
+            // Category text
             if (transaction.category.isNotBlank()) {
                 tvCategory.visibility = View.VISIBLE
                 tvCategory.text = transaction.category
@@ -43,11 +59,31 @@ class TransactionAdapter(
                 tvCategory.visibility = View.GONE
             }
 
+            val emoji = transaction.category.substringBefore(" ")
+
+            // 2) Display it in the circular TextView
+            ivCategoryIcon.text = emoji
+
+            // 3) (Optional) Retint the background if you still want coloring:
+            (ivCategoryIcon.background as? GradientDrawable)
+                ?.setColor(getCategoryColor(transaction.category))
+
+
+
+            // Long‑press to delete/edit
             itemView.setOnLongClickListener {
                 onLongClick(transaction)
                 true
             }
         }
+    }
+
+    /**
+     * Replace the displayed list and refresh.
+     */
+    fun updateData(newList: List<Transaction>) {
+        transactions = newList
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
@@ -62,7 +98,17 @@ class TransactionAdapter(
 
     override fun getItemCount(): Int = transactions.size
 
-    // Helper function: maps currency code to a symbol.
+    /** Returns a background color for the category icon circle. */
+    private fun getCategoryColor(category: String): Int {
+        return when (category.lowercase(Locale.getDefault())) {
+            "food" -> Color.parseColor("#FFC107")       // Amber
+            "transport" -> Color.parseColor("#2196F3")  // Blue
+            "shopping" -> Color.parseColor("#9C27B0")   // Purple
+            else -> Color.parseColor("#E3F2FD")         // Light Blue default
+        }
+    }
+
+    /** Maps currency codes to a symbol. */
     private fun getCurrencySymbol(code: String): String {
         return when (code) {
             "USD" -> "$"
@@ -74,7 +120,7 @@ class TransactionAdapter(
             "CHF" -> "CHF"
             "CNY" -> "¥"
             "INR" -> "₹"
-            "LKR" -> "Rs" // You may choose a different representation for LKR if you prefer.
+            "LKR" -> "Rs"
             "HKD" -> "HK$"
             "SGD" -> "S$"
             "NZD" -> "NZ$"
@@ -82,4 +128,7 @@ class TransactionAdapter(
             else -> code
         }
     }
+
+    /** Extension to format a double to [digits] decimal places. */
+    private fun Double.format(digits: Int): String = "%.${digits}f".format(this)
 }

@@ -5,10 +5,27 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragments.TransactionFragment">
 
-    <!-- RecyclerView to list all transactions -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTransactions"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <!-- Material tabs for All / Income / Expenses -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabIndicatorFullWidth="false" />
+
+        <!-- The list of transactions -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTransactions"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
 
 </FrameLayout>
