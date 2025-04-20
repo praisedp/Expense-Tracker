@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
+import com.google.android.material.snackbar.Snackbar
 
 class TransactionFragment : Fragment() {
 
@@ -56,15 +57,26 @@ class TransactionFragment : Fragment() {
             override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
 
             override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
-                // Delete the swiped transaction
+                // 1. Capture the deleted transaction and its position
                 val pos = vh.adapterPosition
-                val tx = allTransactions[pos]
-                if (PrefsManager.deleteTransaction(tx.id)) {
-                    Toast.makeText(context, "Transaction deleted", Toast.LENGTH_SHORT).show()
-                    // Refresh list
-                    allTransactions = PrefsManager.loadTransactions()
-                    adapter.updateData(allTransactions)
-                }
+                val deletedTx = allTransactions[pos]
+
+                // 2. Remove from SharedPreferences and UI
+                PrefsManager.deleteTransaction(deletedTx.id)
+                adapter.updateData(PrefsManager.loadTransactions())
+
+                // 3. Show Snackbar with UNDO
+                Snackbar.make(recyclerView, "Transaction deleted", 3000)
+                    .setAction("UNDO") {
+                        // Restore in SharedPreferences
+                        val restoredList = PrefsManager.loadTransactions().toMutableList()
+                        restoredList.add(pos, deletedTx)
+                        PrefsManager.saveTransactions(restoredList)
+                        // Refresh UI
+                        allTransactions = restoredList
+                        adapter.updateData(allTransactions)
+                    }
+                    .show()
             }
 
             override fun onChildDraw(
