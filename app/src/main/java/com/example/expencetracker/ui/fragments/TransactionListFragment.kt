@@ -41,7 +41,7 @@ class TransactionListFragment : Fragment() {
         // Load categories to pass into the adapter
         val categories: List<Category> = PrefsManager.loadCategories()
         val adapter = TransactionAdapter(transactions, categories) { transaction ->
-            showDeleteTransactionDialog(transaction)
+            showOptionsDialog(transaction)
         }
         recyclerView.adapter = adapter
     }
@@ -61,6 +61,20 @@ class TransactionListFragment : Fragment() {
                 }
             }
             .setNegativeButton("No", null)
+            .show()
+    }
+
+    // Long‑press popup with Edit / Delete / Cancel
+    private fun showOptionsDialog(tx: Transaction) {
+        val choices = arrayOf("Edit", "Delete", "Cancel")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Choose action")
+            .setItems(choices) { _, which ->
+                when (which) {
+                    0 -> Toast.makeText(requireContext(), "Edit coming soon", Toast.LENGTH_SHORT).show()
+                    1 -> showDeleteTransactionDialog(tx)
+                }
+            }
             .show()
     }
 }

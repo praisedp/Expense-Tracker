@@ -45,7 +45,7 @@ class TransactionFragment : Fragment() {
 
 // 2. Pass both into the adapter
         adapter = TransactionAdapter(allTransactions, allCategories) { tx ->
-            showDeleteTransactionDialog(tx)
+            showOptionsDialog(tx)
         }
         recyclerView.adapter = adapter
 
@@ -156,5 +156,25 @@ class TransactionFragment : Fragment() {
             }
             .setNegativeButton("No", null)
             .show()
+    }
+
+    // ─── options dialog for long‑press ──────────────────────────────
+    private fun showOptionsDialog(tx: Transaction) {
+        val choices = arrayOf("Edit", "Delete", "Cancel")
+        AlertDialog.Builder(requireContext())
+            .setTitle("Choose action")
+            .setItems(choices) { _, which ->
+                when (which) {
+                    0 -> editTransaction(tx)            // Edit
+                    1 -> showDeleteTransactionDialog(tx) // Delete
+                    // 2 = Cancel → do nothing
+                }
+            }
+            .show()
+    }
+
+    private fun editTransaction(tx: Transaction) {
+        // later you’ll launch AddEditTransactionActivity here
+        Toast.makeText(requireContext(), "Edit feature coming soon", Toast.LENGTH_SHORT).show()
     }
 }
