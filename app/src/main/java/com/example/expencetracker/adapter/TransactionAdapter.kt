@@ -13,8 +13,10 @@ import com.example.expencetracker.R
 import com.example.expencetracker.data.Category
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.data.Transaction
+import com.example.expencetracker.data.TxType
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 class TransactionAdapter(
     private var transactions: List<Transaction>,
@@ -36,11 +38,18 @@ class TransactionAdapter(
             // Amount formatting with currency symbol and two decimals
             val currencyCode = PrefsManager.getCurrency()
             val symbol = getCurrencySymbol(currencyCode)
-            val formattedAmount = transaction.amount.format(2)
-            tvAmount.text = "$symbol$formattedAmount"
+            val absAmount = String.format(Locale.getDefault(), "%.2f", abs(transaction.amount))
 
-            // Color amount green for income, red for expense
-            val colorRes = if (transaction.amount < 0) {
+// 3) Prepend a “-” only for expenses
+            val displayText = if (transaction.type == TxType.EXPENSE) {
+                "-$symbol$absAmount"
+            } else {
+                "$symbol$absAmount"
+            }
+            tvAmount.text = displayText
+
+// 4) Color red for expenses, green for income
+            val colorRes = if (transaction.type == TxType.EXPENSE) {
                 R.color.amount_color_negative
             } else {
                 R.color.amount_color_positive

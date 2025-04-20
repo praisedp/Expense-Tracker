@@ -15,6 +15,11 @@ import com.example.expencetracker.data.TxType
 import com.example.expencetracker.data.Transaction
 import com.example.expencetracker.adapter.TransactionAdapter
 import com.example.expencetracker.data.PrefsManager
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.ItemTouchHelper
 
 class TransactionFragment : Fragment() {
 
@@ -42,6 +47,53 @@ class TransactionFragment : Fragment() {
             showDeleteTransactionDialog(tx)
         }
         recyclerView.adapter = adapter
+
+        // Attach swipe-to-delete on full left swipe
+        val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)!!
+        val background = ColorDrawable(Color.parseColor("#f44336"))  // red
+
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
+
+            override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
+                // Delete the swiped transaction
+                val pos = vh.adapterPosition
+                val tx = allTransactions[pos]
+                if (PrefsManager.deleteTransaction(tx.id)) {
+                    Toast.makeText(context, "Transaction deleted", Toast.LENGTH_SHORT).show()
+                    // Refresh list
+                    allTransactions = PrefsManager.loadTransactions()
+                    adapter.updateData(allTransactions)
+                }
+            }
+
+            override fun onChildDraw(
+                c: Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
+                dX: Float, dY: Float, actionState: Int, isActive: Boolean
+            ) {
+                val itemView = vh.itemView
+                // Draw red background from right to swipe distance
+                val dx = dX.toInt()
+                background.setBounds(
+                    itemView.right + dx,
+                    itemView.top,
+                    itemView.right,
+                    itemView.bottom
+                )
+                background.draw(c)
+                // Draw delete icon centered vertically on the right
+                val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
+                val iconRight = itemView.right - iconMargin
+                val iconLeft = iconRight - deleteIcon.intrinsicWidth
+                val iconTop = itemView.top + iconMargin
+                val iconBottom = iconTop + deleteIcon.intrinsicHeight
+                deleteIcon.setBounds(iconLeft, iconTop, iconRight, iconBottom)
+                deleteIcon.draw(c)
+
+                super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive)
+            }
+        }
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
 
         tabLayout.addTab(tabLayout.newTab().setText("All"))
         tabLayout.addTab(tabLayout.newTab().setText("Income"))
