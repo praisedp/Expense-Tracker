@@ -18,6 +18,7 @@ import com.example.expencetracker.ui.AddEditTransactionActivity
 import com.example.expencetracker.ui.CurrencySelectionActivity
 import com.example.expencetracker.util.CurrencyConverter
 import kotlinx.coroutines.launch
+import com.example.expencetracker.data.CategoryBudget
 
 class SettingsFragment : Fragment() {
 
@@ -87,6 +88,16 @@ class SettingsFragment : Fragment() {
                     }
                     // Save updated transactions.
                     PrefsManager.saveTransactions(transactions)
+                    // Convert overall monthly budget
+                    val oldTotal = PrefsManager.getTotalBudget()
+                    if (oldTotal > 0.0) {
+                        PrefsManager.setTotalBudget(oldTotal * conversionRate)
+                    }
+
+                    // Convert each per-category budget
+                    val oldCatBudgets = PrefsManager.loadCategoryBudgets()
+                    val newCatBudgets = oldCatBudgets.map { it.copy(limit = it.limit * conversionRate) }
+                    PrefsManager.saveCategoryBudgets(newCatBudgets)
                     // Update stored currency.
                     PrefsManager.setCurrency(newCurrency)
                     Toast.makeText(context, "Currency updated to $newCurrency", Toast.LENGTH_SHORT).show()

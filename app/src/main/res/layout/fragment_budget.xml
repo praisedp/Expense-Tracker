@@ -3,7 +3,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/budget_background">
+
+    <!-- ── Page Heading ──────────────────────────────────────── -->
+    <TextView
+        android:id="@+id/tvPageHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Monthly Budget"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+        android:textColor="@color/budget_text_primary"
+        android:textStyle="bold"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- ── Monthly‑total card ─────────────────────────────────── -->
     <androidx.cardview.widget.CardView
@@ -11,14 +26,15 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tvPageHeading"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -27,17 +43,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="@color/budget_text_primary"
+                android:textStyle="bold"
                 android:text="No monthly budget set"/>
 
             <ProgressBar
                 android:id="@+id/progressTotalBudget"
-                style="?android:attr/progressBarStyleHorizontal"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_height="12dp"
+                android:layout_marginTop="12dp"
+                android:progressDrawable="@drawable/progress_gradient"
                 android:max="100"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+    <!-- ── Title for categories section ──────────────────────── -->
+    <TextView
+        android:id="@+id/tvCategoriesTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Budget Categories"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:textColor="@color/budget_text_primary"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/cardTotalBudget"
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- ── Per‑category list ──────────────────────────────────── -->
     <androidx.recyclerview.widget.RecyclerView
@@ -45,7 +77,10 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="16dp"
-        app:layout_constraintTop_toBottomOf="@id/cardTotalBudget"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"
+        app:layout_constraintTop_toBottomOf="@id/tvCategoriesTitle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -56,7 +91,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="Edit budget"
-        android:src="@drawable/ic_edit"
+        android:src="@drawable/ic_edit_budget"
+        app:tint="@android:color/white"
+        app:backgroundTint="@color/budget_accent"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="24dp"/>

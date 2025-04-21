@@ -8,7 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expencetracker.R
 import com.example.expencetracker.data.CategoryBudget
+import com.example.expencetracker.data.PrefsManager
 import java.text.NumberFormat
+import java.util.Currency
 
 /**
  * RecyclerView adapter that shows, for each category:
@@ -19,7 +21,11 @@ import java.text.NumberFormat
 class CategoryBudgetAdapter :
     RecyclerView.Adapter<CategoryBudgetAdapter.CatVH>() {
 
-    private val currencyFmt = NumberFormat.getCurrencyInstance()
+    private val currencyFmt by lazy {
+        NumberFormat.getCurrencyInstance().apply {
+            currency = Currency.getInstance(PrefsManager.getCurrency())
+        }
+    }
     private var rows: List<Row> = emptyList()
 
     /** Called by BudgetFragment to refresh data. */

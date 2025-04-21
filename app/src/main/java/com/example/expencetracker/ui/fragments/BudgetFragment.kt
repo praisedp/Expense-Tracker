@@ -17,6 +17,7 @@ import com.example.expencetracker.ui.dialogs.BudgetDialogFragment
 import com.example.expencetracker.util.BudgetCalculator
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.NumberFormat
+import java.util.Currency
 
 class BudgetFragment : Fragment() {
 
@@ -26,7 +27,11 @@ class BudgetFragment : Fragment() {
     private lateinit var fabSet: FloatingActionButton
     private lateinit var adapter: CategoryBudgetAdapter
 
-    private val fmt = NumberFormat.getCurrencyInstance()
+    private val fmt by lazy {
+        NumberFormat.getCurrencyInstance().apply {
+            currency = java.util.Currency.getInstance(PrefsManager.getCurrency())
+        }
+    }
 
     // ── lifecycle ──────────────────────────────────────────────
     override fun onCreateView(

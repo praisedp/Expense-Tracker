@@ -28,4 +28,12 @@
     <color name="primary_text">#212121</color>       <!-- for main headings -->
     <color name="accent_color">#6200EE</color>       <!-- your accent/theme color -->
     <color name="secondary_text">#757575</color>     <!-- for secondary text -->
+
+    <!-- Budget feature colors -->
+    <color name="budget_background">#F8F9FA</color>
+    <color name="budget_text_primary">#212529</color>
+    <color name="budget_text_secondary">#6C757D</color>
+    <color name="budget_accent">#5D5FEF</color>
+    <color name="budget_progress_start">#5D5FEF</color>
+    <color name="budget_progress_end">#7879F1</color>
 </resources>
