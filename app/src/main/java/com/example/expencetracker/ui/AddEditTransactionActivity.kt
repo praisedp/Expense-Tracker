@@ -1,14 +1,14 @@
 package com.example.expencetracker.ui
 
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.expencetracker.R
-import com.example.expencetracker.data.PrefsManager
-import com.example.expencetracker.data.Transaction
-import com.example.expencetracker.data.TxType
-import com.example.expencetracker.data.Category
+import com.example.expencetracker.data.*
+import com.example.expencetracker.util.BudgetAlertManager
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -22,58 +22,103 @@ class AddEditTransactionActivity : AppCompatActivity() {
     private lateinit var btnSave: Button
     private lateinit var btnCancel: Button
 
-    // A variable to hold the selected date (as epoch millis)
     private var selectedDate: Long = System.currentTimeMillis()
+    private var editingTxId: Long? = null        // null = add‑mode, else edit‑mode
 
+    // ─── life‑cycle ────────────────────────────────────────────────────
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_edit_transaction)
 
-        // Bind views
+        bindViews()
+        configureDatePicker()
+        configureButtons()
+        configureTypeRadioListener()
+
+        // If launched for EDIT, pre‑populate fields
+        editingTxId = intent.getLongExtra(EXTRA_TX_ID, -1L).takeIf { it != -1L }
+        editingTxId?.let { prefillFields(it) }       // switch to edit‑mode
+        updateCategorySpinner()                      // build spinner
+    }
+
+    // ─── view helpers ──────────────────────────────────────────────────
+    private fun bindViews() {
         rgTxType = findViewById(R.id.rgTxType)
-        etTitle = findViewById(R.id.etTitle)
+        etTitle  = findViewById(R.id.etTitle)
         etAmount = findViewById(R.id.etAmount)
         spinnerCategory = findViewById(R.id.spinnerCategory)
-        tvDate = findViewById(R.id.tvDate)
-        btnSave = findViewById(R.id.btnSave)
-        btnCancel = findViewById(R.id.btnCancel)
+        tvDate   = findViewById(R.id.tvDate)
+        btnSave  = findViewById(R.id.btnSave)
+        btnCancel= findViewById(R.id.btnCancel)
+    }
 
-        // Set up the spinner with actual categories based on selected type
-        updateCategorySpinner()
-
-        // Listener to update spinner when the transaction type changes
-        rgTxType.setOnCheckedChangeListener { _, _ ->
-            updateCategorySpinner()
-        }
-
-        // Set initial date text
-        updateDateDisplay(selectedDate)
-
-        // When tvDate is clicked, open a DatePickerDialog
+    private fun configureDatePicker() {
         tvDate.setOnClickListener {
-            val calendar = Calendar.getInstance().apply { timeInMillis = selectedDate }
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-            DatePickerDialog(this, { _, selYear, selMonth, selDayOfMonth ->
-                val cal = Calendar.getInstance()
-                cal.set(selYear, selMonth, selDayOfMonth)
+            val cal = Calendar.getInstance().apply { timeInMillis = selectedDate }
+            DatePickerDialog(this, { _, y, m, d ->
+                cal.set(y, m, d)
                 selectedDate = cal.timeInMillis
-                updateDateDisplay(selectedDate)
-            }, year, month, day).show()
+                tvDate.text = formatDate(selectedDate)
+            }, cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]).show()
         }
+        tvDate.text = formatDate(selectedDate)
+    }
 
-        // Save button click - Validate and save the transaction
-        btnSave.setOnClickListener {
-            if (validateInput()) {
-                val title = etTitle.text.toString().trim()
-                val amount = etAmount.text.toString().toDouble()
-                val category = spinnerCategory.selectedItem.toString()
-                val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
+    private fun configureButtons() {
+        btnSave.setOnClickListener { onSave() }
+        btnCancel.setOnClickListener { finish() }
+    }
 
-                // Create a new Transaction object
-                val newTx = Transaction(
+    private fun configureTypeRadioListener() =
+        rgTxType.setOnCheckedChangeListener { _, _ -> updateCategorySpinner() }
+
+    // ─── edit‑mode prefill ─────────────────────────────────────────────
+    private fun prefillFields(txId: Long) {
+        val tx = PrefsManager.loadTransactions().firstOrNull { it.id == txId } ?: return
+        etTitle.setText(tx.title)
+        etAmount.setText(tx.amount.toString())
+        selectedDate = tx.date
+        tvDate.text = formatDate(selectedDate)
+
+        if (tx.type == TxType.INCOME) rgTxType.check(R.id.rbIncome) else rgTxType.check(R.id.rbExpense)
+
+        // Category spinner selection will be handled after spinner is populated
+        // We store category text so we can select it later
+        spinnerCategory.tag = tx.category
+    }
+
+    // ─── spinner population ───────────────────────────────────────────
+    private fun updateCategorySpinner() {
+        val saved = PrefsManager.loadCategories()
+        val type  = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
+        val list  = saved.filter { it.type == type }
+        val display = list.map { "${it.emoji} ${it.name}" }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, display)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerCategory.adapter = adapter
+
+        // If we’re editing, select the original category
+        (spinnerCategory.tag as? String)?.let { orig ->
+            val idx = display.indexOfFirst { it.endsWith(orig) }
+            if (idx >= 0) spinnerCategory.setSelection(idx)
+        }
+    }
+
+    // ─── save logic ───────────────────────────────────────────────────
+    private fun onSave() {
+        if (!validate()) return
+
+        val title = etTitle.text.toString().trim()
+        val amount = etAmount.text.toString().toDouble()
+        val category = spinnerCategory.selectedItem.toString()
+        val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
+
+        val list = PrefsManager.loadTransactions().toMutableList()
+
+        if (editingTxId == null) {
+            // ADD
+            list.add(
+                Transaction(
                     id = System.currentTimeMillis(),
                     title = title,
                     amount = amount,
@@ -81,77 +126,47 @@ class AddEditTransactionActivity : AppCompatActivity() {
                     type = type,
                     date = selectedDate
                 )
-
-                // Load existing transactions, add the new one, and save them
-                val currentTxs = PrefsManager.loadTransactions().toMutableList()
-                currentTxs.add(newTx)
-                PrefsManager.saveTransactions(currentTxs)
-
-                Toast.makeText(this, "Transaction Saved", Toast.LENGTH_SHORT).show()
-                finish()  // Close the activity and return to the previous screen
+            )
+        } else {
+            // EDIT: find and replace
+            val index = list.indexOfFirst { it.id == editingTxId }
+            if (index != -1) {
+                list[index] = list[index].copy(
+                    title = title,
+                    amount = amount,
+                    category = category,
+                    type = type,
+                    date = selectedDate
+                )
             }
         }
 
-        // Cancel button click - Simply finish the activity without saving
-        btnCancel.setOnClickListener {
-            finish()
-        }
+        PrefsManager.saveTransactions(list)
+        BudgetAlertManager.check(this)
+        setResult(RESULT_OK)
+        finish()
     }
 
-    // Function to update the spinner with categories based on selected transaction type
-    private fun updateCategorySpinner() {
-        // Load the saved categories from SharedPreferences
-        val savedCategories = PrefsManager.loadCategories()
-        // Determine the selected transaction type (income or expense)
-        val selectedType = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
-
-        // Filter the categories based on the selected type. If there are none, provide fallback default categories.
-        val filteredCategories = if (savedCategories.isNotEmpty()) {
-            savedCategories.filter { it.type == selectedType }
-        } else {
-            if (selectedType == TxType.INCOME)
-                listOf(
-                    Category("Salary", TxType.INCOME, "💰"),
-                    Category("Bonus", TxType.INCOME, "💸"),
-                    Category("Other Income", TxType.INCOME, "💲")
-                )
-            else
-                listOf(
-                    Category("Food", TxType.EXPENSE, "🍔"),
-                    Category("Bills", TxType.EXPENSE, "📄"),
-                    Category("Entertainment", TxType.EXPENSE, "🎬"),
-                    Category("Other Expenses", TxType.EXPENSE, "🛒")
-                )
-        }
-
-        // Now, map the Category objects to display strings that include both the emoji and the category name.
-        val categoryNames = filteredCategories.map { "${it.emoji} ${it.name}" }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCategory.adapter = adapter
-    }
-
-    // Helper function to update the date display in tvDate
-    private fun updateDateDisplay(timeInMillis: Long) {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        tvDate.text = sdf.format(Date(timeInMillis))
-    }
-
-    // Validate user input; return true if all fields are valid
-    private fun validateInput(): Boolean {
-        if (etTitle.text.isNullOrBlank()) {
-            etTitle.error = "Title is required"
-            return false
-        }
-        if (etAmount.text.isNullOrBlank()) {
-            etAmount.error = "Amount is required"
-            return false
-        }
+    // ─── validation  ──────────────────────────────────────────────────
+    private fun validate(): Boolean {
+        if (etTitle.text.isNullOrBlank()) { etTitle.error = "Title required"; return false }
+        if (etAmount.text.isNullOrBlank()) { etAmount.error = "Amount required"; return false }
         if (etAmount.text.toString().toDoubleOrNull() == null || etAmount.text.toString().toDouble() <= 0) {
-            etAmount.error = "Enter a valid amount"
-            return false
+            etAmount.error = "Enter valid amount"; return false
         }
-        // You can also add a check here to ensure that the spinner has a valid selection, if needed.
         return true
+    }
+
+    // ─── utils ────────────────────────────────────────────────────────
+    private fun formatDate(ms: Long): String =
+        SimpleDateFormat("yyyy‑MM‑dd", Locale.getDefault()).format(Date(ms))
+
+    companion object {
+        private const val EXTRA_TX_ID = "tx_id"
+
+        fun createIntent(ctx: Context, txId: Long? = null): Intent =
+            Intent(ctx, AddEditTransactionActivity::class.java).apply {
+                txId?.let { putExtra(EXTRA_TX_ID, it) }
+            }
     }
 }

@@ -21,6 +21,7 @@ import android.graphics.drawable.ColorDrawable
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.snackbar.Snackbar
+import com.example.expencetracker.ui.AddEditTransactionActivity
 
 class TransactionFragment : Fragment() {
 
@@ -174,7 +175,7 @@ class TransactionFragment : Fragment() {
     }
 
     private fun editTransaction(tx: Transaction) {
-        // later you’ll launch AddEditTransactionActivity here
-        Toast.makeText(requireContext(), "Edit feature coming soon", Toast.LENGTH_SHORT).show()
+        val intent = AddEditTransactionActivity.createIntent(requireContext(), tx.id)
+        startActivity(intent)          // you can also use startActivityForResult if you want a callback
     }
 }

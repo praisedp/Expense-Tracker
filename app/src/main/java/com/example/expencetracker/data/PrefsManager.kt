@@ -10,6 +10,8 @@ object PrefsManager {
     private const val PREFS = "finance_prefs"
     private const val KEY_TRANSACTIONS = "transactions"
     private const val KEY_CATEGORIES = "categories"
+    private const val KEY_BUDGET_TOTAL = "budget_total"
+    private const val KEY_BUDGET_CATS  = "budget_categories"
 
     private lateinit var prefs: SharedPreferences
     private val gson = Gson()
@@ -75,5 +77,26 @@ object PrefsManager {
 
     fun getCurrency(): String {
         return prefs.getString(KEY_CURRENCY, "USD") ?: "USD" // Default to USD
+    }
+
+    // ───────── Budget (total) ───────────────────────────────────────────
+    fun setTotalBudget(amount: Double) {
+        prefs.edit().putFloat(KEY_BUDGET_TOTAL, amount.toFloat()).apply()
+    }
+
+    /** Returns saved monthly budget, or 0.0 if none set */
+    fun getTotalBudget(): Double =
+        prefs.getFloat(KEY_BUDGET_TOTAL, 0f).toDouble()
+
+    // ───────── Budget (per‑category) ────────────────────────────────────
+    fun saveCategoryBudgets(list: List<CategoryBudget>) {
+        val json = gson.toJson(list)
+        prefs.edit().putString(KEY_BUDGET_CATS, json).apply()
+    }
+
+    fun loadCategoryBudgets(): List<CategoryBudget> {
+        val json = prefs.getString(KEY_BUDGET_CATS, null) ?: return emptyList()
+        val type = object : com.google.gson.reflect.TypeToken<List<CategoryBudget>>() {}.type
+        return gson.fromJson(json, type)
     }
 }

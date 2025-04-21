@@ -20,4 +20,12 @@
     <color name="category_color_food">#FFC107</color>
     <color name="category_color_transport">#2196F3</color>
     <color name="category_color_shopping">#9C27B0</color>
+    <!-- res/values/colors.xml -->
+    <color name="green_500">#4CAF50</color>
+    <color name="amber_600">#FFB300</color>
+    <color name="red_600">#E53935</color>
+    <color name="background_color">#FFFFFF</color>    <!-- adjust as your background -->
+    <color name="primary_text">#212121</color>       <!-- for main headings -->
+    <color name="accent_color">#6200EE</color>       <!-- your accent/theme color -->
+    <color name="secondary_text">#757575</color>     <!-- for secondary text -->
 </resources>

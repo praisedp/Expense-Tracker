@@ -3,4 +3,25 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="select_category">Select Category</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="transaction_details">Transaction Details</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="transaction_title">Transaction Title</string>
+    <string name="amount">Amount</string>
+    <string name="category">Category</string>
+    <string name="date">Date</string>
+    <string name="notes_optional">Notes (Optional)</string>
+    <!-- res/values/strings.xml -->
+    <!-- res/values/strings.xml -->
+    <string name="cat_budget_approach">Category budget warning</string>
+    <string name="cat_budget_exceeded">Category budget exceeded</string>
+    <string name="budget_approach">Budget warning</string>
+    <string name="budget_approach_msg">You have used %1$d%% of your monthly budget.</string>
+    <string name="budget_exceeded">Budget exceeded</string>
+    <string name="budget_exceeded_msg">You have exceeded your monthly budget!</string>
+    <string name="no_budget_set">No monthly budget set</string>
+    <string name="total_budget">Total budget</string>
+    <string name="budget_status_fmt">Spent: %1$s / Limit: %2$s</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>
