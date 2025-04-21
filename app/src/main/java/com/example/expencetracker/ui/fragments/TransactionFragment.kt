@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.snackbar.Snackbar
 import com.example.expencetracker.ui.AddEditTransactionActivity
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TransactionFragment : Fragment() {
 
@@ -44,7 +45,7 @@ class TransactionFragment : Fragment() {
         allTransactions = PrefsManager.loadTransactions()
         val allCategories = PrefsManager.loadCategories()
 
-// 2. Pass both into the adapter
+        // 2. Pass both into the adapter
         adapter = TransactionAdapter(allTransactions, allCategories) { tx ->
             showOptionsDialog(tx)
         }
@@ -107,6 +108,14 @@ class TransactionFragment : Fragment() {
             }
         }
         ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
+
+        // Find and configure the '+' FAB
+        val fabAdd = view.findViewById<FloatingActionButton>(R.id.fabAddTransaction)
+        fabAdd.setOnClickListener {
+            startActivity(
+                AddEditTransactionActivity.createIntent(requireContext(), null /* no id for new */)
+            )
+        }
 
         tabLayout.addTab(tabLayout.newTab().setText("All"))
         tabLayout.addTab(tabLayout.newTab().setText("Income"))

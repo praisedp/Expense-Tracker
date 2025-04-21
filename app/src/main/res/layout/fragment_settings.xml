@@ -1,36 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragments.SettingsFragment">
+    android:padding="16dp">
 
-    <!-- Vertical LinearLayout anchored at the bottom -->
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <Button
-            android:id="@+id/btnAddTransaction"
+        <!-- 1. Categories Section -->
+        <TextView
+            android:id="@+id/tvSettingsCatHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Transaction"
-            android:layout_marginBottom="8dp" />
+            android:text="Categories"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp"/>
 
-        <Button
-            android:id="@+id/btnAddCategory"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCategories"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:overScrollMode="never"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAddCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/add_category"
+            app:srcCompat="@drawable/ic_add"/>
+
+        <!-- 2. Currency Section -->
+        <TextView
+            android:id="@+id/tvSettingsCurrencyHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Category" />
+            android:text="Currency"
+            android:paddingTop="24dp"
+            android:paddingBottom="4dp"/>
 
-        <Button
-            android:id="@+id/btnChangeCurrency"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Change Currency" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvCurrentCurrency"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="USD - $" />
+
+            <Button
+                android:id="@+id/btnChangeCurrency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="change_currency" />
+        </LinearLayout>
+
+        <!-- 3. Backup & Restore Section -->
+        <TextView
+            android:id="@+id/tvSettingsBackupHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Data Backup"
+            android:paddingTop="24dp"
+            android:paddingBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnBackup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/backup_transactions"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
+            android:id="@+id/btnRestore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/restore_transactions" />
+
+        <!-- 4. App Version (optional) -->
+        <TextView
+            android:id="@+id/tvAppVersion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="App Version: 1.0.0"
+            android:gravity="center"
+            android:paddingTop="32dp" />
+
     </LinearLayout>
-
-</FrameLayout>
+</androidx.core.widget.NestedScrollView>

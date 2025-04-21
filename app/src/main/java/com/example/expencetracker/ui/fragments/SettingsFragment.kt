@@ -14,13 +14,20 @@ import androidx.lifecycle.lifecycleScope
 import com.example.expencetracker.R
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.ui.AddCategoryActivity
-import com.example.expencetracker.ui.AddEditTransactionActivity
 import com.example.expencetracker.ui.CurrencySelectionActivity
 import com.example.expencetracker.util.CurrencyConverter
 import kotlinx.coroutines.launch
 import com.example.expencetracker.data.CategoryBudget
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.expencetracker.adapter.CategoryAdapter
+import com.example.expencetracker.data.Category
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class SettingsFragment : Fragment() {
+    private lateinit var rvCategories: RecyclerView
+    private var categories = mutableListOf<Category>()
 
     private val REQUEST_CURRENCY = 101
 
@@ -29,18 +36,22 @@ class SettingsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
-        // Button for launching AddEditTransactionActivity
-        val btnAddTransaction: Button = view.findViewById(R.id.btnAddTransaction)
-        btnAddTransaction.setOnClickListener {
-            val intent = Intent(activity, AddEditTransactionActivity::class.java)
-            startActivity(intent)
-        }
+        // 1. Load initial list of categories
+        categories = PrefsManager.loadCategories().toMutableList()
 
-        // Button for launching AddCategoryActivity
-        val btnAddCategory: Button = view.findViewById(R.id.btnAddCategory)
-        btnAddCategory.setOnClickListener {
-            val intent = Intent(activity, AddCategoryActivity::class.java)
-            startActivity(intent)
+        // 2. Find RecyclerView and configure it
+        rvCategories = view.findViewById(R.id.rvCategories)
+        rvCategories.layoutManager = LinearLayoutManager(requireContext())
+        val categoryAdapter = CategoryAdapter(categories) { category ->
+            showCategoryOptionsDialog(category)
+        }
+        rvCategories.adapter = categoryAdapter
+
+        // 3. FAB to add a new category
+        val fabAdd = view.findViewById<FloatingActionButton>(R.id.fabAddCategory)
+        fabAdd.setOnClickListener {
+            // Launch AddCategoryActivity for a new category (no extras)
+            startActivity(Intent(requireContext(), AddCategoryActivity::class.java))
         }
 
         // Button for changing currency
@@ -106,5 +117,55 @@ class SettingsFragment : Fragment() {
                 Toast.makeText(context, "Currency remains unchanged", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+    /**
+     * Show dialog with Edit / Delete options for a selected category.
+     */
+    private fun showCategoryOptionsDialog(category: Category) {
+        val options = arrayOf("Edit", "Delete", "Cancel")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Category: ${category.name}")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> editCategory(category)
+                    1 -> deleteCategory(category)
+                    // Cancel does nothing
+                }
+            }
+            .show()
+    }
+
+    /**
+     * Launch AddCategoryActivity in "edit" mode, passing the category name and emoji.
+     */
+    private fun editCategory(category: Category) {
+        val intent = Intent(requireContext(), AddCategoryActivity::class.java).apply {
+            putExtra("edit_category_name", category.name)
+            putExtra("edit_category_type", category.type.name)
+            putExtra("edit_category_emoji", category.emoji)
+        }
+        startActivity(intent)
+    }
+
+    /**
+     * Delete the given category and refresh the RecyclerView.
+     */
+    private fun deleteCategory(category: Category) {
+        if (PrefsManager.deleteCategory(category.name)) {
+            Toast.makeText(requireContext(), "${category.name} deleted", Toast.LENGTH_SHORT).show()
+            // Remove from local list and notify adapter
+            (rvCategories.adapter as? CategoryAdapter)?.let { adapter ->
+                categories.remove(category)
+                adapter.notifyDataSetChanged()
+            }
+        } else {
+            Toast.makeText(requireContext(), "Could not delete ${category.name}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        categories = PrefsManager.loadCategories().toMutableList()
+        rvCategories.adapter?.notifyDataSetChanged()
     }
 }

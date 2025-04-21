@@ -5,95 +5,240 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/budget_background"
     tools:context=".ui.AddEditTransactionActivity">
 
     <ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
         <!-- Using a vertical LinearLayout inside the ScrollView -->
         <LinearLayout
-            android:orientation="vertical"
-            android:padding="16dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
 
-            <!-- RadioGroup for selecting transaction type -->
-            <RadioGroup
-                android:id="@+id/rgTxType"
+            <!-- Page Title -->
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="Add/Edit Transaction"
+                android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+                android:textColor="@color/budget_text_primary"
+                android:textStyle="bold" />
+
+            <!-- Transaction Type Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Transaction Type"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                        android:textColor="@color/budget_text_secondary" />
+
+                    <!-- RadioGroup for selecting transaction type with styled buttons -->
+                    <RadioGroup
+                        android:id="@+id/rgTxType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/transaction_type_background"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <RadioButton
+                            android:id="@+id/rbIncome"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="2dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/transaction_type_selector"
+                            android:button="@null"
+                            android:checked="true"
+                            android:gravity="center"
+                            android:text="Income"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@drawable/transaction_type_text_selector" />
+
+                        <RadioButton
+                            android:id="@+id/rbExpense"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="2dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/transaction_type_selector"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:text="Expense"
+                            android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                            android:textColor="@drawable/transaction_type_text_selector" />
+                    </RadioGroup>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Transaction Details Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:text="Transaction Details"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                        android:textColor="@color/budget_text_secondary" />
+
+                    <!-- EditText for Transaction Title -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Transaction Title"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:startIconDrawable="@drawable/ic_title"
+                        app:startIconTint="@color/budget_accent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- EditText for Transaction Amount -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:hint="Amount"
+                        app:boxCornerRadiusBottomEnd="8dp"
+                        app:boxCornerRadiusBottomStart="8dp"
+                        app:boxCornerRadiusTopEnd="8dp"
+                        app:boxCornerRadiusTopStart="8dp"
+                        app:startIconDrawable="@drawable/ic_money"
+                        app:startIconTint="@color/budget_accent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAmount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Category Section -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Category"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="@color/budget_text_primary" />
+
+                    <!-- Spinner with custom styling -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/spinner_background">
+
+                        <Spinner
+                            android:id="@+id/spinnerCategory"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:backgroundTint="@android:color/transparent"
+                            android:dropDownWidth="match_parent"
+                            android:popupBackground="@color/white"
+                            android:prompt="@string/select_category"
+                            android:spinnerMode="dropdown" />
+                    </FrameLayout>
+
+                    <!-- Date Section -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="Date"
+                        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                        android:textColor="@color/budget_text_primary" />
+
+                    <!-- TextView to show/select the Date with better styling -->
+                    <TextView
+                        android:id="@+id/tvDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/date_selector_background"
+                        android:clickable="true"
+                        android:drawableStart="@drawable/ic_calendar"
+                        android:drawablePadding="12dp"
+                        android:drawableTint="@color/budget_accent"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:text="Select Date"
+                        android:textColor="@color/budget_text_primary" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
-                <RadioButton
-                    android:id="@+id/rbIncome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Income"
-                    android:checked="true" />
-
-                <RadioButton
-                    android:id="@+id/rbExpense"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Expense" />
-            </RadioGroup>
-
-            <!-- EditText for Transaction Title -->
-            <EditText
-                android:id="@+id/etTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Transaction Title"
-                android:inputType="text" />
-
-            <!-- EditText for Transaction Amount -->
-            <EditText
-                android:id="@+id/etAmount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Amount"
-                android:inputType="numberDecimal" />
-
-            <!-- Spinner for Category selection -->
-            <Spinner
-                android:id="@+id/spinnerCategory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:prompt="@string/select_category" />
-
-            <!-- TextView to show/select the Date -->
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Select Date"
-                android:padding="12dp"
-                android:background="@android:drawable/edit_text"
-                android:clickable="true"
-                android:focusable="true" />
-
-            <!-- Save and Cancel Buttons in a horizontal layout -->
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSave"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                     android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Save" />
+                    android:backgroundTint="@color/budget_accent"
+                    android:text="Save"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="12dp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCancel"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Cancel" />
+                    android:text="Cancel"
+                    android:textColor="@color/budget_accent"
+                    app:cornerRadius="12dp"
+                    app:strokeColor="@color/budget_accent" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

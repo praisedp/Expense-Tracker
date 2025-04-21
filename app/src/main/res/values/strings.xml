@@ -21,6 +21,11 @@
     <string name="budget_exceeded_msg">You have exceeded your monthly budget!</string>
     <string name="no_budget_set">No monthly budget set</string>
     <string name="total_budget">Total budget</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="add_category">Add Category</string>
+    <string name="backup_transactions">Backup Transactions</string>
+    <string name="restore_transactions">Restore Transactions</string>
+
     <string name="budget_status_fmt">Spent: %1$s / Limit: %2$s</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
