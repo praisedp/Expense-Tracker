@@ -79,6 +79,13 @@
             android:text="@string/backup_transactions"
             android:layout_marginBottom="8dp"/>
 
+        <TextView
+            android:id="@+id/tvLastBackup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:text="Last backup: never" />
+
         <Button
             android:id="@+id/btnRestore"
             android:layout_width="match_parent"

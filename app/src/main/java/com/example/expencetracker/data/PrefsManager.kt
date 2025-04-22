@@ -54,7 +54,25 @@ object PrefsManager {
         if (removed) {
             saveTransactions(transactions)
         }
-        return removed
+    return removed
+}
+
+    /**
+     * Remove all transactions belonging to the given category
+     * so they no longer appear in your transaction lists.
+     */
+    fun setLastBackupTime(timestamp: Long) {
+        prefs.edit()
+            .putLong("last_backup_time", timestamp)
+            .apply()
+    }
+    fun getLastBackupTime(): Long {
+        return prefs.getLong("last_backup_time", 0L)
+    }
+    fun deleteTransactionsByCategory(categoryName: String) {
+        val updated = loadTransactions()
+            .filter { it.category != categoryName }
+        saveTransactions(updated)
     }
 
     // Delete a category by its name.

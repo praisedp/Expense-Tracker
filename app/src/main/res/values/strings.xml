@@ -15,6 +15,7 @@
     <!-- res/values/strings.xml -->
     <string name="cat_budget_approach">Category budget warning</string>
     <string name="cat_budget_exceeded">Category budget exceeded</string>
+    <string name="update_category">Update Category</string>
     <string name="budget_approach">Budget warning</string>
     <string name="budget_approach_msg">You have used %1$d%% of your monthly budget.</string>
     <string name="budget_exceeded">Budget exceeded</string>
@@ -25,6 +26,11 @@
     <string name="add_category">Add Category</string>
     <string name="backup_transactions">Backup Transactions</string>
     <string name="restore_transactions">Restore Transactions</string>
+
+        <string name="backup_success">Backup saved to %1$s</string>
+        <string name="backup_failure">Failed to save backup: %1$s</string>
+        <string name="restore_success">Data restored successfully</string>
+        <string name="restore_failure">Failed to restore backup</string>
 
     <string name="budget_status_fmt">Spent: %1$s / Limit: %2$s</string>
     <string name="cancel">Cancel</string>

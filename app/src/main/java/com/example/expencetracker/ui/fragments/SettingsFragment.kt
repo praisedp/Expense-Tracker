@@ -2,19 +2,24 @@ package com.example.expencetracker.ui.fragments
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.expencetracker.R
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.ui.AddCategoryActivity
 import com.example.expencetracker.ui.CurrencySelectionActivity
+import com.example.expencetracker.util.BackupManager
 import com.example.expencetracker.util.CurrencyConverter
 import kotlinx.coroutines.launch
 import com.example.expencetracker.data.CategoryBudget
@@ -24,12 +29,19 @@ import com.example.expencetracker.adapter.CategoryAdapter
 import com.example.expencetracker.data.Category
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.text.SimpleDateFormat
+import java.util.Currency
+import java.util.Date
+import java.util.Locale
 
 class SettingsFragment : Fragment() {
     private lateinit var rvCategories: RecyclerView
     private var categories = mutableListOf<Category>()
 
     private val REQUEST_CURRENCY = 101
+
+    private lateinit var openBackupPicker: ActivityResultLauncher<Intent>
+    private lateinit var tvLastBackup: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -54,11 +66,71 @@ class SettingsFragment : Fragment() {
             startActivity(Intent(requireContext(), AddCategoryActivity::class.java))
         }
 
+        // Register the file‐picker result handler
+        openBackupPicker = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { uri: Uri ->
+                    // Import backup on background thread
+                    lifecycleScope.launch {
+                        val success = BackupManager.importBackup(requireContext(), uri)
+                        val msgRes = if (success) R.string.restore_success else R.string.restore_failure
+                        Toast.makeText(context, msgRes, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+
         // Button for changing currency
         val btnChangeCurrency: Button = view.findViewById(R.id.btnChangeCurrency)
         btnChangeCurrency.setOnClickListener {
             val intent = Intent(activity, CurrencySelectionActivity::class.java)
             startActivityForResult(intent, REQUEST_CURRENCY)
+        }
+
+        // Backup
+        val btnBackup = view.findViewById<Button>(R.id.btnBackup)
+        btnBackup.setOnClickListener {
+            try {
+                val path = BackupManager.exportBackup(requireContext())
+                Toast.makeText(context, getString(R.string.backup_success, path), Toast.LENGTH_LONG).show()
+
+                // Record backup timestamp and update UI
+                val now = System.currentTimeMillis()
+                PrefsManager.setLastBackupTime(now)
+                val fmt = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+                tvLastBackup.text = "Last backup: ${fmt.format(Date(now))}"
+
+            } catch (e: Exception) {
+                Toast.makeText(context, getString(R.string.backup_failure, e.message ?: ""), Toast.LENGTH_LONG).show()
+            }
+        }
+
+        // Restore
+        val btnRestore = view.findViewById<Button>(R.id.btnRestore)
+        btnRestore.setOnClickListener {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/json"
+            }
+            openBackupPicker.launch(intent)
+        }
+
+        // --- Show current currency dynamically ---
+        val tvCurrency = view.findViewById<TextView>(R.id.tvCurrentCurrency)
+        val currCode = PrefsManager.getCurrency()
+        val currSymbol = Currency.getInstance(currCode).symbol
+        tvCurrency.text = "$currCode - $currSymbol"
+
+        // --- Show last backup time ---
+        tvLastBackup = view.findViewById<TextView>(R.id.tvLastBackup)
+        val lastMillis = PrefsManager.getLastBackupTime()
+        tvLastBackup.text = if (lastMillis > 0L) {
+            val fmt = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+            "Last backup: ${fmt.format(Date(lastMillis))}"
+        } else {
+            "Last backup: never"
         }
 
         return view
@@ -112,6 +184,12 @@ class SettingsFragment : Fragment() {
                     // Update stored currency.
                     PrefsManager.setCurrency(newCurrency)
                     Toast.makeText(context, "Currency updated to $newCurrency", Toast.LENGTH_SHORT).show()
+
+                    // Refresh the displayed currency immediately
+                    val tvCurrency = requireView().findViewById<TextView>(R.id.tvCurrentCurrency)
+                    val updatedCode = PrefsManager.getCurrency()
+                    val updatedSymbol = Currency.getInstance(updatedCode).symbol
+                    tvCurrency.text = "$updatedCode - $updatedSymbol"
                 }
             } else {
                 Toast.makeText(context, "Currency remains unchanged", Toast.LENGTH_SHORT).show()
@@ -151,13 +229,18 @@ class SettingsFragment : Fragment() {
      * Delete the given category and refresh the RecyclerView.
      */
     private fun deleteCategory(category: Category) {
+        // Find the position in the current list
+        val index = categories.indexOf(category)
+        // Remove category from storage
         if (PrefsManager.deleteCategory(category.name)) {
+            // Also purge all transactions in that category
+            PrefsManager.deleteTransactionsByCategory(category.name)
+
             Toast.makeText(requireContext(), "${category.name} deleted", Toast.LENGTH_SHORT).show()
-            // Remove from local list and notify adapter
-            (rvCategories.adapter as? CategoryAdapter)?.let { adapter ->
-                categories.remove(category)
-                adapter.notifyDataSetChanged()
-            }
+
+            // Update local list & notify adapter of item removal
+            categories.removeAt(index)
+            rvCategories.adapter?.notifyItemRemoved(index)
         } else {
             Toast.makeText(requireContext(), "Could not delete ${category.name}", Toast.LENGTH_SHORT).show()
         }
