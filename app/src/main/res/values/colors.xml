@@ -14,7 +14,19 @@
     <color name="amount_color_positive">#4CAF50</color>
     <color name="amount_color_negative">#F44336</color>
     <color name="amount_color">@color/amount_color_negative</color>
+    <color name="primary_color">#1976D2</color>
+    <color name="primary_dark_color">#1565C0</color>
+    <color name="accent_dark_color">#F50057</color>
 
+
+    <color name="settings_background">#F5F5F5</color>
+    <color name="card_background">#FFFFFF</color>
+
+
+    <color name="income_category_bg">#E1F5FE</color>
+    <color name="income_category_stroke">#4FC3F7</color>
+    <color name="expense_category_bg">#FFEBEE</color>
+    <color name="expense_category_stroke">#FF8A80</color>
     <!-- Default category color -->
     <color name="category_color_default">#E3F2FD</color>
     <color name="category_color_food">#FFC107</color>

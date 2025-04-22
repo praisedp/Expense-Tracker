@@ -20,13 +20,11 @@ import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.ui.AddCategoryActivity
 import com.example.expencetracker.ui.CurrencySelectionActivity
 import com.example.expencetracker.util.BackupManager
+import com.example.expencetracker.util.CategoryChipHelper
 import com.example.expencetracker.util.CurrencyConverter
 import kotlinx.coroutines.launch
-import com.example.expencetracker.data.CategoryBudget
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.expencetracker.adapter.CategoryAdapter
-import com.example.expencetracker.data.Category
+import com.example.expencetracker.data.TxType
+import com.google.android.material.chip.ChipGroup
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
@@ -35,9 +33,6 @@ import java.util.Date
 import java.util.Locale
 
 class SettingsFragment : Fragment() {
-    private lateinit var rvCategories: RecyclerView
-    private var categories = mutableListOf<Category>()
-
     private val REQUEST_CURRENCY = 101
 
     private lateinit var openBackupPicker: ActivityResultLauncher<Intent>
@@ -48,16 +43,26 @@ class SettingsFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
-        // 1. Load initial list of categories
-        categories = PrefsManager.loadCategories().toMutableList()
+        // Populate category chips via helper
+        val incomes = PrefsManager.loadCategories()
+            .filter { it.type == TxType.INCOME }
+            .map { "${it.emoji} ${it.name}" }
+        val expenses = PrefsManager.loadCategories()
+            .filter { it.type == TxType.EXPENSE }
+            .map { "${it.emoji} ${it.name}" }
 
-        // 2. Find RecyclerView and configure it
-        rvCategories = view.findViewById(R.id.rvCategories)
-        rvCategories.layoutManager = LinearLayoutManager(requireContext())
-        val categoryAdapter = CategoryAdapter(categories) { category ->
-            showCategoryOptionsDialog(category)
-        }
-        rvCategories.adapter = categoryAdapter
+        CategoryChipHelper.addCategoriesToChipGroup(
+            requireContext(),
+            view.findViewById(R.id.chipGroupIncome),
+            incomes,
+            CategoryChipHelper.ChipType.INCOME
+        )
+        CategoryChipHelper.addCategoriesToChipGroup(
+            requireContext(),
+            view.findViewById(R.id.chipGroupExpense),
+            expenses,
+            CategoryChipHelper.ChipType.EXPENSE
+        )
 
         // 3. FAB to add a new category
         val fabAdd = view.findViewById<FloatingActionButton>(R.id.fabAddCategory)
@@ -199,7 +204,7 @@ class SettingsFragment : Fragment() {
     /**
      * Show dialog with Edit / Delete options for a selected category.
      */
-    private fun showCategoryOptionsDialog(category: Category) {
+    private fun showCategoryOptionsDialog(category: com.example.expencetracker.data.Category) {
         val options = arrayOf("Edit", "Delete", "Cancel")
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Category: ${category.name}")
@@ -216,7 +221,7 @@ class SettingsFragment : Fragment() {
     /**
      * Launch AddCategoryActivity in "edit" mode, passing the category name and emoji.
      */
-    private fun editCategory(category: Category) {
+    private fun editCategory(category: com.example.expencetracker.data.Category) {
         val intent = Intent(requireContext(), AddCategoryActivity::class.java).apply {
             putExtra("edit_category_name", category.name)
             putExtra("edit_category_type", category.type.name)
@@ -226,11 +231,9 @@ class SettingsFragment : Fragment() {
     }
 
     /**
-     * Delete the given category and refresh the RecyclerView.
+     * Delete the given category and refresh the UI.
      */
-    private fun deleteCategory(category: Category) {
-        // Find the position in the current list
-        val index = categories.indexOf(category)
+    private fun deleteCategory(category: com.example.expencetracker.data.Category) {
         // Remove category from storage
         if (PrefsManager.deleteCategory(category.name)) {
             // Also purge all transactions in that category
@@ -238,9 +241,31 @@ class SettingsFragment : Fragment() {
 
             Toast.makeText(requireContext(), "${category.name} deleted", Toast.LENGTH_SHORT).show()
 
-            // Update local list & notify adapter of item removal
-            categories.removeAt(index)
-            rvCategories.adapter?.notifyItemRemoved(index)
+            // Refresh chips after deletion
+            val categories = PrefsManager.loadCategories()
+            val chipIncome  = requireView().findViewById<ChipGroup>(R.id.chipGroupIncome)
+            val chipExpense = requireView().findViewById<ChipGroup>(R.id.chipGroupExpense)
+
+            chipIncome.removeAllViews()
+            chipExpense.removeAllViews()
+
+            categories.forEach { cat ->
+                val chip = com.google.android.material.chip.Chip(requireContext()).apply {
+                    id = View.generateViewId()
+                    text = "${cat.emoji} ${cat.name}"
+                    isClickable = true
+                    isCheckable = false
+                    setOnLongClickListener {
+                        showCategoryOptionsDialog(cat)
+                        true
+                    }
+                }
+                if (cat.type == TxType.INCOME) {
+                    chipIncome.addView(chip)
+                } else {
+                    chipExpense.addView(chip)
+                }
+            }
         } else {
             Toast.makeText(requireContext(), "Could not delete ${category.name}", Toast.LENGTH_SHORT).show()
         }
@@ -248,7 +273,30 @@ class SettingsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        categories = PrefsManager.loadCategories().toMutableList()
-        rvCategories.adapter?.notifyDataSetChanged()
+        // Refresh chips on resume
+        val categories = PrefsManager.loadCategories()
+        val chipIncome  = requireView().findViewById<ChipGroup>(R.id.chipGroupIncome)
+        val chipExpense = requireView().findViewById<ChipGroup>(R.id.chipGroupExpense)
+
+        chipIncome.removeAllViews()
+        chipExpense.removeAllViews()
+
+        categories.forEach { category ->
+            val chip = com.google.android.material.chip.Chip(requireContext()).apply {
+                id = View.generateViewId()
+                text = "${category.emoji} ${category.name}"
+                isClickable = true
+                isCheckable = false
+                setOnLongClickListener {
+                    showCategoryOptionsDialog(category)
+                    true
+                }
+            }
+            if (category.type == TxType.INCOME) {
+                chipIncome.addView(chip)
+            } else {
+                chipExpense.addView(chip)
+            }
+        }
     }
 }
