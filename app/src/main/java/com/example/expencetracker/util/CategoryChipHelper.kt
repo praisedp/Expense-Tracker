@@ -19,21 +19,21 @@ object CategoryChipHelper {
         when (type) {
             ChipType.INCOME -> {
                 chip.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, R.color.income_category_bg)
+                    ContextCompat.getColor(context, R.color.colorPrimaryLight)
                 )
                 chip.chipStrokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, R.color.income_category_stroke)
+                    ContextCompat.getColor(context, R.color.colorPrimary)
                 )
-                chip.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                chip.setTextColor(ContextCompat.getColor(context, R.color.textPrimary))
             }
             ChipType.EXPENSE -> {
                 chip.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, R.color.expense_category_bg)
+                    ContextCompat.getColor(context, R.color.colorExpenseLight)
                 )
                 chip.chipStrokeColor = ColorStateList.valueOf(
                     ContextCompat.getColor(context, R.color.expense_category_stroke)
                 )
-                chip.setTextColor(ContextCompat.getColor(context, R.color.text_primary))
+                chip.setTextColor(ContextCompat.getColor(context, R.color.textPrimary))
             }
         }
 

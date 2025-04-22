@@ -1,51 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="text_hint">#9E9E9E</color>
-
-    <!-- Icon colors -->
-    <color name="icon_background">#E3F2FD</color>
+    <!-- Primary (Blue) -->
+    <color name="colorPrimary">#2196F3</color>       <!-- Blue 500  -->
+    <color name="colorPrimaryDark">#1976D2</color>   <!-- Blue 700  -->
+    <color name="colorPrimaryLight">#BBDEFB</color>  <!-- Blue 100  -->
+    <color name="colorAccent">#448AFF</color>        <!-- Blue A200  -->
     <color name="icon_tint">#1976D2</color>
 
-    <!-- Amount color will be dynamically set based on positive/negative values -->
-    <color name="amount_color_positive">#4CAF50</color>
-    <color name="amount_color_negative">#F44336</color>
-    <color name="amount_color">@color/amount_color_negative</color>
-    <color name="primary_color">#1976D2</color>
-    <color name="primary_dark_color">#1565C0</color>
-    <color name="accent_dark_color">#F50057</color>
-
-
-    <color name="settings_background">#F5F5F5</color>
-    <color name="card_background">#FFFFFF</color>
-
-
-    <color name="income_category_bg">#E1F5FE</color>
-    <color name="income_category_stroke">#4FC3F7</color>
-    <color name="expense_category_bg">#FFEBEE</color>
     <color name="expense_category_stroke">#FF8A80</color>
-    <!-- Default category color -->
-    <color name="category_color_default">#E3F2FD</color>
-    <color name="category_color_food">#FFC107</color>
-    <color name="category_color_transport">#2196F3</color>
-    <color name="category_color_shopping">#9C27B0</color>
-    <!-- res/values/colors.xml -->
-    <color name="green_500">#4CAF50</color>
-    <color name="amber_600">#FFB300</color>
-    <color name="red_600">#E53935</color>
-    <color name="background_color">#FFFFFF</color>    <!-- adjust as your background -->
-    <color name="primary_text">#212121</color>       <!-- for main headings -->
-    <color name="accent_color">#6200EE</color>       <!-- your accent/theme color -->
-    <color name="secondary_text">#757575</color>     <!-- for secondary text -->
+    <!-- Success / Income -->
+    <color name="colorIncome">#4CAF50</color>        <!-- Green 500  -->
+    <color name="colorIncomeDark">#388E3C</color>    <!-- Green 700  -->
+    <color name="colorIncomeLight">#C8E6C9</color>   <!-- Green 100  -->
 
-    <!-- Budget feature colors -->
-    <color name="budget_background">#F8F9FA</color>
-    <color name="budget_text_primary">#212529</color>
-    <color name="budget_text_secondary">#6C757D</color>
-    <color name="budget_accent">#5D5FEF</color>
-    <color name="budget_progress_start">#5D5FEF</color>
-    <color name="budget_progress_end">#7879F1</color>
+    <!-- Error / Expense -->
+    <color name="colorExpense">#F44336</color>       <!-- Red 500  -->
+    <color name="colorExpenseDark">#D32F2F</color>   <!-- Red 700  -->
+    <color name="colorExpenseLight">#FFCDD2</color>  <!-- Red 100  -->
+
+    <!-- Surface & Background -->
+    <color name="colorBackground">#FAFAFA</color>    <!-- Grey 50  -->
+    <color name="colorSurface">#FFFFFF</color>       <!-- White  [oai_citation_attribution:1‡Color Hex](https://www.color-hex.com/color/ffffff?utm_source=chatgpt.com) -->
+
+    <!-- Text -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="textHint">#9E9E9E</color>
+
+    <!-- Alerts & Info -->
+    <color name="colorWarning">#FFB300</color>       <!-- Amber 600  -->
+    <color name="colorInfo">#03A9F4</color>          <!-- Light Blue 500  -->
 </resources>

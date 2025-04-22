@@ -50,9 +50,9 @@ class TransactionAdapter(
 
 // 4) Color red for expenses, green for income
             val colorRes = if (transaction.type == TxType.EXPENSE) {
-                R.color.amount_color_negative
+                R.color.colorExpense
             } else {
-                R.color.amount_color_positive
+                R.color.colorIncome
             }
             tvAmount.setTextColor(ContextCompat.getColor(itemView.context, colorRes))
 

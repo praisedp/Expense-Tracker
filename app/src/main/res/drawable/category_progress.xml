@@ -10,7 +10,7 @@
         <scale android:scaleWidth="100%">
             <shape>
                 <corners android:radius="4dp"/>
-                <solid android:color="@color/budget_accent"/>
+                <solid android:color="@color/colorAccent"/>
             </shape>
         </scale>
     </item>

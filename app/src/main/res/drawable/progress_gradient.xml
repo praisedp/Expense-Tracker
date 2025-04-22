@@ -11,8 +11,8 @@
             <shape>
                 <corners android:radius="6dp"/>
                 <gradient
-                    android:startColor="@color/budget_progress_start"
-                    android:endColor="@color/budget_progress_end"
+                    android:startColor="@color/colorPrimaryDark"
+                    android:endColor="@color/colorPrimaryLight"
                     android:angle="0"/>
             </shape>
         </scale>

@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:text="Set Budget"
             android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-            android:textColor="@color/budget_text_primary"
+            android:textColor="@color/textPrimary"
             android:layout_marginBottom="16dp"/>
 
         <!-- TOTAL monthly budget -->
@@ -31,7 +31,7 @@
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
             app:startIconDrawable="@drawable/ic_wallet"
-            app:startIconTint="@color/budget_accent">
+            app:startIconTint="@color/colorAccent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTotalBudget"
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:text="Category Limits"
             android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            android:textColor="@color/budget_text_primary"
+            android:textColor="@color/textPrimary"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp"/>
 
@@ -70,7 +70,7 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/budget_accent"
+                android:backgroundTint="@color/colorAccent"
                 android:textColor="@android:color/white"
                 android:text="@string/save"
                 app:cornerRadius="12dp"/>
@@ -82,9 +82,9 @@
                 android:layout_height="56dp"
                 android:layout_weight="1"
                 android:layout_marginStart="12dp"
-                android:textColor="@color/budget_accent"
+                android:textColor="@color/colorAccent"
                 android:text="@string/cancel"
-                app:strokeColor="@color/budget_accent"
+                app:strokeColor="@color/colorAccent"
                 app:cornerRadius="12dp"/>
         </LinearLayout>
     </LinearLayout>

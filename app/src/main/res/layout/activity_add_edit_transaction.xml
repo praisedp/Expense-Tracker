@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/budget_background"
+    android:background="@color/colorBackground"
     tools:context=".ui.AddEditTransactionActivity">
 
     <ScrollView
@@ -27,7 +27,7 @@
                 android:layout_marginBottom="24dp"
                 android:text="Add/Edit Transaction"
                 android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-                android:textColor="@color/budget_text_primary"
+                android:textColor="@color/textPrimary"
                 android:textStyle="bold" />
 
             <!-- Transaction Type Card -->
@@ -50,7 +50,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="Transaction Type"
                         android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="@color/budget_text_secondary" />
+                        android:textColor="@color/textSecondary" />
 
                     <!-- RadioGroup for selecting transaction type with styled buttons -->
                     <RadioGroup
@@ -111,7 +111,7 @@
                         android:layout_marginBottom="16dp"
                         android:text="Transaction Details"
                         android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-                        android:textColor="@color/budget_text_secondary" />
+                        android:textColor="@color/textSecondary" />
 
                     <!-- EditText for Transaction Title -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -125,7 +125,7 @@
                         app:boxCornerRadiusTopEnd="8dp"
                         app:boxCornerRadiusTopStart="8dp"
                         app:startIconDrawable="@drawable/ic_title"
-                        app:startIconTint="@color/budget_accent">
+                        app:startIconTint="@color/colorAccent">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etTitle"
@@ -146,7 +146,7 @@
                         app:boxCornerRadiusTopEnd="8dp"
                         app:boxCornerRadiusTopStart="8dp"
                         app:startIconDrawable="@drawable/ic_money"
-                        app:startIconTint="@color/budget_accent">
+                        app:startIconTint="@color/colorAccent">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etAmount"
@@ -162,7 +162,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="Category"
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textColor="@color/budget_text_primary" />
+                        android:textColor="@color/textPrimary" />
 
                     <!-- Spinner with custom styling -->
                     <FrameLayout
@@ -177,7 +177,7 @@
                             android:layout_height="48dp"
                             android:backgroundTint="@android:color/transparent"
                             android:dropDownWidth="match_parent"
-                            android:popupBackground="@color/white"
+                            android:popupBackground="@color/colorSurface"
                             android:prompt="@string/select_category"
                             android:spinnerMode="dropdown" />
                     </FrameLayout>
@@ -189,7 +189,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="Date"
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                        android:textColor="@color/budget_text_primary" />
+                        android:textColor="@color/textPrimary" />
 
                     <!-- TextView to show/select the Date with better styling -->
                     <TextView
@@ -200,12 +200,12 @@
                         android:clickable="true"
                         android:drawableStart="@drawable/ic_calendar"
                         android:drawablePadding="12dp"
-                        android:drawableTint="@color/budget_accent"
+                        android:drawableTint="@color/colorAccent"
                         android:focusable="true"
                         android:gravity="center_vertical"
                         android:padding="12dp"
                         android:text="Select Date"
-                        android:textColor="@color/budget_text_primary" />
+                        android:textColor="@color/textPrimary" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -223,9 +223,9 @@
                     android:layout_height="56dp"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:backgroundTint="@color/budget_accent"
+                    android:backgroundTint="@color/colorAccent"
                     android:text="Save"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/colorSurface"
                     app:cornerRadius="12dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -236,9 +236,9 @@
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:text="Cancel"
-                    android:textColor="@color/budget_accent"
+                    android:textColor="@color/colorAccent"
                     app:cornerRadius="12dp"
-                    app:strokeColor="@color/budget_accent" />
+                    app:strokeColor="@color/colorAccent" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

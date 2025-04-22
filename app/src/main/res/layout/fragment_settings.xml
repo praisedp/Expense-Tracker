@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_color"
+    android:background="@color/colorBackground"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/card_background"
+            app:cardBackgroundColor="@color/colorSurface"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/tvSettingsCatHeader">
@@ -91,7 +91,7 @@
                         android:contentDescription="@string/add_category"
                         app:fabSize="mini"
                         app:srcCompat="@drawable/ic_add"
-                        app:tint="@color/white" />
+                        app:tint="@color/colorSurface" />
                 </FrameLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -112,7 +112,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/card_background"
+            app:cardBackgroundColor="@color/colorSurface"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/tvSettingsCurrencyHeader">
@@ -141,7 +141,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="USD - $"
-                        android:textColor="@color/text_primary"
+                        android:textColor="@color/textPrimary"
                         android:textSize="16sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -154,7 +154,7 @@
                     android:text="Change"
                     android:textAllCaps="false"
                     app:cornerRadius="8dp"
-                    app:strokeColor="@color/accent_color" />
+                    app:strokeColor="@color/colorAccent" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -174,7 +174,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:cardBackgroundColor="@color/card_background"
+            app:cardBackgroundColor="@color/colorSurface"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
             app:layout_constraintTop_toBottomOf="@id/tvSettingsBackupHeader">
@@ -201,7 +201,7 @@
                     android:layout_marginVertical="12dp"
                     android:gravity="center"
                     android:text="Last backup: never"
-                    android:textColor="@color/text_secondary"
+                    android:textColor="@color/textSecondary"
                     android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -213,7 +213,7 @@
                     android:textAllCaps="false"
                     app:cornerRadius="8dp"
                     app:icon="@drawable/ic_cloud_download"
-                    app:strokeColor="@color/accent_color" />
+                    app:strokeColor="@color/colorAccent" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -225,7 +225,7 @@
             android:layout_marginTop="32dp"
             android:gravity="center"
             android:text="App Version: 1.0.0"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/textSecondary"
             android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@id/cardBackup" />
 

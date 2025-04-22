@@ -13,7 +13,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textColor="@color/budget_text_primary"
+        android:textColor="@color/textPrimary"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"/>
 
     <com.google.android.material.textfield.TextInputLayout

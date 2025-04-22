@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:textColor="@color/budget_text_primary"
+                android:textColor="@color/textPrimary"
                 android:textStyle="bold" />
 
             <!-- "spent / limit" -->
@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                android:textColor="@color/budget_text_secondary" />
+                android:textColor="@color/textSecondary" />
         </LinearLayout>
 
         <!-- Mini progress bar -->

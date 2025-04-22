@@ -5,78 +5,172 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".ui.AddCategoryActivity">
 
     <ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Using a vertical LinearLayout inside the ScrollView -->
         <LinearLayout
             android:orientation="vertical"
-            android:padding="16dp"
+            android:padding="24dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <!-- EditText for Category Name -->
-            <EditText
-                android:id="@+id/etCategoryName"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Category Name"
-                android:inputType="text" />
+                android:text="Category"
+                android:textSize="24sp"
+                android:textColor="@color/textPrimary"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp"/>
 
-            <!-- EditText for Emoji -->
-            <EditText
-                android:id="@+id/etCategoryEmoji"
+            <!-- Card for Category Name -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter Emoji (e.g., 🍔, 💰)"
-                android:inputType="text" />
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="16dp">
 
-            <!-- RadioGroup for selecting Category Type -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_category"
+                        app:tint="@color/icon_tint"
+                        android:layout_marginEnd="16dp"/>
+
+                    <EditText
+                        android:id="@+id/etCategoryName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Category Name"
+                        android:inputType="text"
+                        android:background="@null"
+                        android:textColor="@color/textPrimary"
+                        android:textColorHint="@color/textHint" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Card for Emoji -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_emoji"
+                        app:tint="@color/icon_tint"
+                        android:layout_marginEnd="16dp"/>
+
+                    <EditText
+                        android:id="@+id/etCategoryEmoji"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter Emoji (e.g., 🍔, 💰)"
+                        android:inputType="text"
+                        android:background="@null"
+                        android:textColor="@color/textPrimary"
+                        android:textColorHint="@color/textHint" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Category Type Selection -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Category Type"
+                android:textSize="16sp"
+                android:textColor="@color/textSecondary"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Updated RadioGroup similar to transaction activity -->
             <RadioGroup
                 android:id="@+id/rgCategoryType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="16dp">
+                android:background="@drawable/category_type_background"
+                android:padding="4dp"
+                android:layout_marginBottom="24dp">
 
                 <RadioButton
                     android:id="@+id/rbCatIncome"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"
                     android:text="Income"
+                    android:textColor="@drawable/category_type_text_selector"
+                    android:background="@drawable/category_type_selector"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:layout_marginEnd="2dp"
                     android:checked="true" />
 
                 <RadioButton
                     android:id="@+id/rbCatExpense"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Expense" />
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="48dp"
+                    android:text="Expense"
+                    android:textColor="@drawable/category_type_text_selector"
+                    android:background="@drawable/category_type_selector"
+                    android:button="@null"
+                    android:gravity="center"
+                    android:layout_marginStart="2dp" />
             </RadioGroup>
 
-            <!-- Save and Cancel Buttons in a horizontal layout -->
+            <!-- Action Buttons -->
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
+                android:layout_marginTop="16dp">
 
-                <Button
-                    android:id="@+id/btnSaveCategory"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Save" />
-
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnCancelCategory"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="Cancel" />
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="Cancel"
+                    android:textColor="@color/textPrimary"
+                    app:strokeColor="@color/textHint"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSaveCategory"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="8dp"
+                    android:text="Save"
+                    android:textColor="@color/colorSurface"
+                    android:backgroundTint="@color/colorPrimary"
+                    app:cornerRadius="12dp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

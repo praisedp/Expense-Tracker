@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/budget_background">
+    android:background="@color/colorBackground">
 
     <!-- ── Page Heading ──────────────────────────────────────── -->
     <TextView
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="Monthly Budget"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        android:textColor="@color/budget_text_primary"
+        android:textColor="@color/textPrimary"
         android:textStyle="bold"
         android:layout_marginStart="20dp"
         android:layout_marginTop="24dp"
@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                android:textColor="@color/budget_text_primary"
+                android:textColor="@color/textPrimary"
                 android:textStyle="bold"
                 android:text="No monthly budget set"/>
 
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:text="Budget Categories"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-        android:textColor="@color/budget_text_primary"
+        android:textColor="@color/textPrimary"
         android:layout_marginStart="20dp"
         android:layout_marginTop="24dp"
         app:layout_constraintTop_toBottomOf="@id/cardTotalBudget"
@@ -93,7 +93,7 @@
         android:contentDescription="Edit budget"
         android:src="@drawable/ic_edit_budget"
         app:tint="@android:color/white"
-        app:backgroundTint="@color/budget_accent"
+        app:backgroundTint="@color/colorAccent"
         app:borderWidth="0dp"
         app:elevation="6dp"
         app:layout_constraintBottom_toBottomOf="parent"

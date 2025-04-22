@@ -47,7 +47,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
-                android:textColor="@color/text_primary"
+                android:textColor="@color/textPrimary"
                 android:textStyle="bold"
                 android:ellipsize="end"
                 android:maxLines="1" />
@@ -57,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/textSecondary"
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:maxLines="1" />
@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:textColor="@color/text_hint"
+                android:textColor="@color/textHint"
                 android:layout_marginTop="2dp" />
         </LinearLayout>
 
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/amount_color"
+            android:textColor="@color/textPrimary"
             android:layout_gravity="center_vertical" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -75,15 +75,15 @@ class BudgetFragment : Fragment() {
             tvTotalStatus.text = getString(R.string.no_budget_set)
             progressTotal.progress = 0
             progressTotal.progressTintList =
-                ContextCompat.getColorStateList(requireContext(), R.color.green_500)
+                ContextCompat.getColorStateList(requireContext(), R.color.colorIncome)
         } else {
             val pct = (spent / totalLimit).coerceIn(0.0, 1.0)
             progressTotal.progress = (pct * 100).toInt()
             progressTotal.progressTintList =
                 ContextCompat.getColorStateList(requireContext(), when {
-                    pct < 0.75 -> R.color.green_500
-                    pct <= 1   -> R.color.amber_600
-                    else       -> R.color.red_600
+                    pct < 0.75 -> R.color.colorIncome
+                    pct <= 1   -> R.color.colorWarning
+                    else       -> R.color.colorExpense
                 })
             tvTotalStatus.text = getString(
                 R.string.budget_status_fmt,
