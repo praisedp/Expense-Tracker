@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:text="Add/Edit Transaction"
+                android:text="Transaction"
                 android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
                 android:textColor="@color/textPrimary"
                 android:textStyle="bold" />
@@ -81,7 +81,7 @@
                             android:layout_height="48dp"
                             android:layout_marginStart="2dp"
                             android:layout_weight="1"
-                            android:background="@drawable/transaction_type_selector"
+                            android:background="@drawable/category_type_selector"
                             android:button="@null"
                             android:gravity="center"
                             android:text="Expense"
