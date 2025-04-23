@@ -5,13 +5,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.example.expencetracker.R
 import com.example.expencetracker.data.CategoryRow          // ← data class you created
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.data.TxType
 import com.example.expencetracker.databinding.FragmentHomeBinding
-import com.example.expencetracker.ui.adapters.CategorySummaryAdapter
+import com.example.expencetracker.ui.adapter.CategorySummaryAdapter
 import com.example.expencetracker.util.DateUtils
 import com.example.expencetracker.util.TransactionFilter
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -37,6 +40,13 @@ class HomeFragment : Fragment() {
     private var filterMode = FilterMode.ALL
     private var monthStart = 0L
     private var monthEnd   = 0L
+    private var isExpenseExpanded = false
+    private var isIncomeExpanded = false
+    private val MAX_VISIBLE_CATEGORIES = 3
+
+    // ─── Category Lists ─────────────────────────────────────────────
+    private var allExpenseRows: List<CategoryRow> = emptyList()
+    private var allIncomeRows: List<CategoryRow> = emptyList()
 
     // ─── Adapters ────────────────────────────────────────────────
     private val expenseAdapter by lazy { CategorySummaryAdapter { openCategory(it) } }
@@ -54,8 +64,6 @@ class HomeFragment : Fragment() {
         // RecyclerViews
         binding.rvExpenseCats.adapter = expenseAdapter
         binding.rvIncomeCats.adapter  = incomeAdapter
-
-
 
         setupFilterBar()
         refreshDashboard()
@@ -140,18 +148,116 @@ class HomeFragment : Fragment() {
         val expPalette = ColorTemplate.MATERIAL_COLORS
         val incPalette = ColorTemplate.COLORFUL_COLORS
 
-        val expRows = expByCat.entries.mapIndexed { idx, e ->
-            val color = expPalette[idx % expPalette.size]
-            CategoryRow(emojiOf(e.key), e.key, e.value, e.value/totalExpForPct*100, color)
+        // ─── Category splits (descending order) ─────────────────────────
+        allExpenseRows = expByCat.entries
+            .sortedByDescending { it.value }               // biggest spend first
+            .mapIndexed { idx, e ->
+                val color = expPalette[idx % expPalette.size]
+                CategoryRow(
+                    emojiOf(e.key),
+                    e.key,
+                    e.value,
+                    e.value / totalExpForPct * 100,        // percent of total expense
+                    color
+                )
+            }
+
+        allIncomeRows = incByCat.entries
+            .sortedByDescending { it.value }               // biggest income first
+            .mapIndexed { idx, e ->
+                val color = incPalette[idx % incPalette.size]
+                CategoryRow(
+                    emojiOf(e.key),
+                    e.key,
+                    e.value,
+                    e.value / totalIncForPct * 100,        // percent of total income
+                    color
+                )
+            }
+
+        updateExpenseList()
+        updateIncomeList()
+        updateExpenseChart(allExpenseRows, totalExpense)
+        updateIncomeChart(allIncomeRows, totalIncome)
+    }
+
+    // Update expense list with either top categories or all categories
+    private fun updateExpenseList() {
+        // Reset expansion state if we only have a few categories
+        if (allExpenseRows.size <= MAX_VISIBLE_CATEGORIES) {
+            isExpenseExpanded = false
+            expenseAdapter.submitList(allExpenseRows)
+            return
         }
-        val incRows = incByCat.entries.mapIndexed { idx, e ->
-            val color = incPalette[idx % incPalette.size]
-            CategoryRow(emojiOf(e.key), e.key, e.value, e.value/totalIncForPct*100, color)
+
+        val displayList = if (isExpenseExpanded) {
+            allExpenseRows
+        } else {
+            allExpenseRows.take(MAX_VISIBLE_CATEGORIES) + createShowAllRow(true)
         }
-        expenseAdapter.submitList(expRows)
-        incomeAdapter.submitList(incRows)
-        updateExpenseChart(expRows, totalExpense)
-        updateIncomeChart(incRows, totalIncome)
+        
+        expenseAdapter.submitList(displayList)
+    }
+
+    // Update income list with either top categories or all categories
+    private fun updateIncomeList() {
+        // Reset expansion state if we only have a few categories
+        if (allIncomeRows.size <= MAX_VISIBLE_CATEGORIES) {
+            isIncomeExpanded = false
+            incomeAdapter.submitList(allIncomeRows)
+            return
+        }
+
+        val displayList = if (isIncomeExpanded) {
+            allIncomeRows
+        } else {
+            allIncomeRows.take(MAX_VISIBLE_CATEGORIES) + createShowAllRow(false)
+        }
+        
+        incomeAdapter.submitList(displayList)
+    }
+
+    // Create a "Show All" row as a CategoryRow
+    private fun createShowAllRow(isExpense: Boolean): CategoryRow {
+        return CategoryRow(
+            emoji = "",
+            name = if (isExpense) {
+                if (isExpenseExpanded) "expense_hide" else "expense_show_all"
+            } else {
+                if (isIncomeExpanded) "income_hide" else "income_show_all"
+            },
+            amount = 0.0,
+            percent = 0.0,
+            color = if (isExpense) ColorTemplate.MATERIAL_COLORS[0] else ColorTemplate.COLORFUL_COLORS[0]
+        )
+    }
+
+    // Handle clicks on categories including the "Show All" option
+    private fun openCategory(row: CategoryRow) {
+        when (row.name) {
+            "expense_show_all", "expense_hide" -> {
+                isExpenseExpanded = !isExpenseExpanded
+                updateExpenseList()
+                return
+            }
+            "income_show_all", "income_hide" -> {
+                isIncomeExpanded = !isIncomeExpanded
+                updateIncomeList()
+                return
+            }
+        }
+
+        // Regular category click behavior
+        val ctx = requireContext()
+        val intent = Intent(ctx, com.example.expencetracker.ui.CategoryTransactionsActivity::class.java).apply {
+            putExtra("label", row.name)
+            putExtra("filter_mode", filterMode.name)
+            if (filterMode == FilterMode.MONTH) {
+                putExtra("from", monthStart)
+                putExtra("to", monthEnd)
+            }
+        }
+        startActivity(intent)
     }
 
     /** Finds the emoji for this category name (or ❓ fallback). */
@@ -197,19 +303,6 @@ class HomeFragment : Fragment() {
         binding.pieIncome.data = PieData(ds)
         binding.pieIncome.centerText = CurrencyFormatter.format(total)
         binding.pieIncome.invalidate()
-    }
-
-    private fun openCategory(row: CategoryRow) {
-        val ctx = requireContext()
-        val intent = Intent(ctx, com.example.expencetracker.ui.CategoryTransactionsActivity::class.java).apply {
-            putExtra("label", row.name)
-            putExtra("filter_mode", filterMode.name)
-            if (filterMode == FilterMode.MONTH) {
-                putExtra("from", monthStart)
-                putExtra("to", monthEnd)
-            }
-        }
-        startActivity(intent)
     }
 }
 

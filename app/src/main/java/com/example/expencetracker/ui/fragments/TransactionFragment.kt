@@ -46,6 +46,7 @@ class TransactionFragment : Fragment() {
 
         // 1. Load transactions and categories
         allTransactions = PrefsManager.loadTransactions()
+            .sortedByDescending { it.date }
         val allCategories = PrefsManager.loadCategories()
 
         // 2. Pass both into the adapter
@@ -129,7 +130,9 @@ class TransactionFragment : Fragment() {
         } else {
             allTransactions.filter { it.type == type }
         }
-        adapter.updateData(filtered)
+        adapter.updateData(
+            filtered.sortedByDescending { it.date }
+        )
     }
 
     // Custom tab setup as provided by AI designer
@@ -170,6 +173,7 @@ class TransactionFragment : Fragment() {
 
     private fun loadTransactions() {
         allTransactions = PrefsManager.loadTransactions()
+            .sortedByDescending { it.date }
         filter(tabLayout.selectedTabPosition.let { if (it == 1) TxType.INCOME else if (it == 2) TxType.EXPENSE else null })
     }
 

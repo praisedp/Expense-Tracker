@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Home: You could keep this if you want a dashboard; or simply use Transactions as your main screen. -->
+    <!-- Home: Dashboard view -->
     <item
         android:id="@+id/nav_home"
-        android:icon="@android:drawable/ic_menu_view"
+        android:icon="@drawable/ic_nav_home"
         android:title="Home" />
 
     <!-- Transactions: Shows all transactions (both income and expense) -->
     <item
         android:id="@+id/nav_transactions"
-        android:icon="@android:drawable/ic_menu_agenda"
+        android:icon="@drawable/ic_nav_transactions"
         android:title="Transactions" />
 
     <!-- Budget: For setting a monthly budget and viewing progress -->
     <item
         android:id="@+id/nav_budget"
-        android:icon="@android:drawable/ic_menu_compass"
+        android:icon="@drawable/ic_nav_budget"
         android:title="Budget" />
 
-    <!-- Settings remains to let users change currency, backup/restore, and manage categories -->
+    <!-- Settings for currency, backup/restore, and managing categories -->
     <item
         android:id="@+id/nav_settings"
-        android:icon="@android:drawable/ic_menu_manage"
+        android:icon="@drawable/ic_nav_settings"
         android:title="Settings" />
 </menu>
