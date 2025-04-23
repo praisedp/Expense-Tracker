@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragments.CategoriesFragment">
+    tools:context=".ui.fragments.CategoriesFragment"
+    android:background="@color/colorBackground">
 
     <!-- Simple placeholder for Categories -->
     <TextView

@@ -13,39 +13,23 @@ object CategoryChipHelper {
     }
 
     fun createCategoryChip(context: Context, text: String, type: ChipType): Chip {
-        val chip = Chip(context)
-        chip.text = text
-
-        when (type) {
-            ChipType.INCOME -> {
-                chip.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, R.color.colorPrimaryLight)
-                )
-                chip.chipStrokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, R.color.colorPrimary)
-                )
-                chip.setTextColor(ContextCompat.getColor(context, R.color.textPrimary))
-            }
-            ChipType.EXPENSE -> {
-                chip.chipBackgroundColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, R.color.colorExpenseLight)
-                )
-                chip.chipStrokeColor = ColorStateList.valueOf(
-                    ContextCompat.getColor(context, R.color.expense_category_stroke)
-                )
-                chip.setTextColor(ContextCompat.getColor(context, R.color.textPrimary))
-            }
+        // Create chip with the appropriate style
+        val chip = when (type) {
+            ChipType.INCOME -> Chip(context, null, R.style.Widget_App_Chip_Income)
+            ChipType.EXPENSE -> Chip(context, null, R.style.Widget_App_Chip_Expense)
         }
-
-        // Enhanced floating bubble appearance
+        
+        chip.text = text
+        
+        // Basic chip properties
         chip.chipStrokeWidth = 1f
         chip.chipCornerRadius = 16f
         chip.isCheckable = false
         chip.isClickable = true
-        chip.elevation = 4f
+        chip.elevation = 2f
         chip.setPadding(12, 8, 12, 8)
 
-        // Optional icon if desired
+        // Set the appropriate icon
         if (type == ChipType.INCOME) {
             chip.chipIcon = ContextCompat.getDrawable(context, R.drawable.ic_income_small)
             chip.isChipIconVisible = true
@@ -53,6 +37,9 @@ object CategoryChipHelper {
             chip.chipIcon = ContextCompat.getDrawable(context, R.drawable.ic_expense_small)
             chip.isChipIconVisible = true
         }
+
+        // Force text color to prevent it from using themed colors
+        chip.setTextColor(ContextCompat.getColor(context, R.color.textPrimary))
 
         return chip
     }

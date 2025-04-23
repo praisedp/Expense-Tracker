@@ -4,7 +4,7 @@
     <color name="colorPrimary">#2196F3</color>       <!-- Blue 500  -->
     <color name="colorPrimaryDark">#1976D2</color>   <!-- Blue 700  -->
     <color name="colorPrimaryLight">#BBDEFB</color>  <!-- Blue 100  -->
-    <color name="colorAccent">#448AFF</color>        <!-- Blue A200  -->
+    <color name="colorAccent">#2196F3</color>        <!-- Changed to match colorPrimary -->
     <color name="icon_tint">#1976D2</color>
 
     <color name="expense_category_stroke">#FF8A80</color>
