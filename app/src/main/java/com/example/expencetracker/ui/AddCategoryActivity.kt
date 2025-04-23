@@ -66,6 +66,22 @@ class AddCategoryActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            // Prevent adding a category with a duplicate name (ignore emoji/type)
+            val existingCats = PrefsManager.loadCategories()
+            if (!isEdit) {
+                // On add: block if any existing name matches
+                if (existingCats.any { it.name.equals(name, ignoreCase = true) }) {
+                    Toast.makeText(this, "Category name already exists", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+            } else {
+                // On edit: block if renaming would collide with another category
+                if (existingCats.any { it.name.equals(name, ignoreCase = true) && !name.equals(originalName, ignoreCase = true) }) {
+                    Toast.makeText(this, "Category name already exists", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+            }
+
             // Load existing
             val list = PrefsManager.loadCategories().toMutableList()
 

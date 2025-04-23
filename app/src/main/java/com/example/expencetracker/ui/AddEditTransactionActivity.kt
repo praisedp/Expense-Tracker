@@ -108,6 +108,12 @@ class AddEditTransactionActivity : AppCompatActivity() {
     private fun onSave() {
         if (!validate()) return
 
+        // Prevent future dates
+        if (selectedDate > System.currentTimeMillis()) {
+            Toast.makeText(this, "Date cannot be in the future", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val title = etTitle.text.toString().trim()
         val amount = etAmount.text.toString().toDouble()
         val category = spinnerCategory.selectedItem.toString()

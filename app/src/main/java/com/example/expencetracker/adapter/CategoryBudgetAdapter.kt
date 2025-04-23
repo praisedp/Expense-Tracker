@@ -42,7 +42,10 @@ class CategoryBudgetAdapter :
                 spent = spentMap[cat] ?: 0.0,
                 limit = limitMap[cat]?.limit ?: 0.0
             )
-        }.sortedBy { it.category }
+        }.sortedWith(
+            compareByDescending<Row> { it.limit > 0.0 }  // rows WITH a budget first
+                .thenBy { it.category.lowercase() }      // then alphabetical
+        )
 
         notifyDataSetChanged()
     }
