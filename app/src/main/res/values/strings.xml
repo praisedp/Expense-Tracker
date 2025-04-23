@@ -14,6 +14,7 @@
     <!-- res/values/strings.xml -->
     <!-- res/values/strings.xml -->
     <string name="cat_budget_approach">Category budget warning</string>
+    <string name="no_transactions">No Transactions yet</string>
     <string name="cat_budget_exceeded">Category budget exceeded</string>
     <string name="update_category">Update</string>
     <string name="budget_approach">Budget warning</string>

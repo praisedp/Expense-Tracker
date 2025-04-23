@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Category title at top -->
+    <TextView
+        android:id="@+id/tvCatTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnBackground" />
+
+    <!-- Transactions list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTransByCat"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tvCatEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/no_transactions"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</LinearLayout>

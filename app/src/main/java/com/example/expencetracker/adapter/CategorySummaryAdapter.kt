@@ -13,7 +13,9 @@ import com.example.expencetracker.data.CategoryRow
 import com.example.expencetracker.util.CurrencyFormatter
 import java.text.NumberFormat
 
-class CategorySummaryAdapter :
+class CategorySummaryAdapter(
+    private val onItemClick: (CategoryRow) -> Unit
+) :
     ListAdapter<CategoryRow, CategorySummaryAdapter.RowVH>(diff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RowVH {
@@ -25,7 +27,7 @@ class CategorySummaryAdapter :
     override fun onBindViewHolder(holder: RowVH, position: Int) =
         holder.bind(getItem(position))
 
-    class RowVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class RowVH(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvName:  TextView   = itemView.findViewById(R.id.tvCatName)
         private val tvAmt:   TextView   = itemView.findViewById(R.id.tvCatAmount)
         private val bar:     ProgressBar= itemView.findViewById(R.id.progressCat)
@@ -37,6 +39,7 @@ class CategorySummaryAdapter :
             bar.progress = row.percent.toInt()
             bar.progressTintList =
                 android.content.res.ColorStateList.valueOf(row.color)
+            itemView.setOnClickListener { onItemClick(row) }
         }
     }
 

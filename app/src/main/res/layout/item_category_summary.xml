@@ -49,8 +49,6 @@
             android:layout_width="match_parent"
             android:layout_height="8dp"
             android:layout_marginTop="8dp"
-            android:progress="0"
-            android:max="100"
-            android:progressTint="@color/colorAccent" />
+            android:progressDrawable="@drawable/category_progress" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

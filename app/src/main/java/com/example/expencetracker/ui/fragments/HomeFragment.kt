@@ -1,5 +1,6 @@
 package com.example.expencetracker.ui.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -38,8 +39,8 @@ class HomeFragment : Fragment() {
     private var monthEnd   = 0L
 
     // ─── Adapters ────────────────────────────────────────────────
-    private val expenseAdapter by lazy { CategorySummaryAdapter() }
-    private val incomeAdapter  by lazy { CategorySummaryAdapter() }
+    private val expenseAdapter by lazy { CategorySummaryAdapter { openCategory(it) } }
+    private val incomeAdapter  by lazy { CategorySummaryAdapter { openCategory(it) } }
 
     // ─── Lifecycle ───────────────────────────────────────────────
     override fun onCreateView(
@@ -196,6 +197,19 @@ class HomeFragment : Fragment() {
         binding.pieIncome.data = PieData(ds)
         binding.pieIncome.centerText = CurrencyFormatter.format(total)
         binding.pieIncome.invalidate()
+    }
+
+    private fun openCategory(row: CategoryRow) {
+        val ctx = requireContext()
+        val intent = Intent(ctx, com.example.expencetracker.ui.CategoryTransactionsActivity::class.java).apply {
+            putExtra("label", row.name)
+            putExtra("filter_mode", filterMode.name)
+            if (filterMode == FilterMode.MONTH) {
+                putExtra("from", monthStart)
+                putExtra("to", monthEnd)
+            }
+        }
+        startActivity(intent)
     }
 }
 
