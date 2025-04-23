@@ -82,6 +82,15 @@ class AddCategoryActivity : AppCompatActivity() {
                 list.add(Category(name, type, emoji))
             }
 
+            // ---- keep budgets & transactions in sync if the label changed ----
+            if (isEdit && originalName != null) {
+                val oldLabel = (originalEmoji?.let { "$it " } ?: "") + originalName
+                val newLabel = "$emoji $name"
+                if (oldLabel.trim() != newLabel.trim()) {
+                    PrefsManager.renameCategory(oldLabel.trim(), newLabel.trim())
+                }
+            }
+
             PrefsManager.saveCategories(list)
             Toast.makeText(this,
                 if (isEdit) "Category updated" else "Category added",

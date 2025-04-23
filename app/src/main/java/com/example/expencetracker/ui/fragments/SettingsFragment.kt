@@ -236,8 +236,8 @@ class SettingsFragment : Fragment() {
     private fun deleteCategory(category: com.example.expencetracker.data.Category) {
         // Remove category from storage
         if (PrefsManager.deleteCategory(category.name)) {
-            // Also purge all transactions in that category
-            PrefsManager.deleteTransactionsByCategory(category.name)
+            // Remove any transactions that stored either "🍔 Food" or just "Food"
+            PrefsManager.deleteTransactionsByCategory("${category.emoji} ${category.name}")
 
             Toast.makeText(requireContext(), "${category.name} deleted", Toast.LENGTH_SHORT).show()
 

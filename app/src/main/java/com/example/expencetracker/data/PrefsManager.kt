@@ -70,8 +70,14 @@ object PrefsManager {
         return prefs.getLong("last_backup_time", 0L)
     }
     fun deleteTransactionsByCategory(categoryName: String) {
+        // Remove all transactions where the stored category label **or** the plain
+        // name (stripped of the leading emoji) matches the deleted category.
         val updated = loadTransactions()
-            .filter { it.category != categoryName }
+            .filter { tx ->
+                val raw = tx.category
+                val plain = raw.substringAfter(" ", raw)   // drops the leading emoji
+                !(raw == categoryName || plain == categoryName)
+            }
         saveTransactions(updated)
     }
 
@@ -82,8 +88,42 @@ object PrefsManager {
         val removed = categories.removeIf { it.name == name }
         if (removed) {
             saveCategories(categories)
+            // -- ALSO remove any per‑category budgets that reference this category --
+            val budgets = loadCategoryBudgets().toMutableList()
+            val budgetRemoved = budgets.removeIf { it.category.endsWith(" $name") || it.category == name }
+            if (budgetRemoved) {
+                saveCategoryBudgets(budgets)
+            }
         }
         return removed
+    }
+
+    /**
+     * Rename a category everywhere it is referenced so old budget rows or
+     * transactions don’t linger and cause duplicates.
+     *
+     * @param oldLabel The old "emoji name" label stored in prefs (e.g. "🍔 Food")
+     * @param newLabel The new "emoji name" label (e.g. "🥑 Food & Dining")
+     */
+    fun renameCategory(oldLabel: String, newLabel: String) {
+        // ---- update per‑category budgets ----
+        val budgets = loadCategoryBudgets().toMutableList()
+        val idx = budgets.indexOfFirst { it.category == oldLabel }
+        if (idx >= 0) {
+            budgets[idx] = CategoryBudget(newLabel, budgets[idx].limit)
+            saveCategoryBudgets(budgets)
+        }
+
+        // ---- update transactions so reports stay correct ----
+        val txs = loadTransactions().toMutableList()
+        var changed = false
+        txs.forEach { tx ->
+            if (tx.category == oldLabel) {
+                tx.category = newLabel
+                changed = true
+            }
+        }
+        if (changed) saveTransactions(txs)
     }
 
     private const val KEY_CURRENCY = "currency"
