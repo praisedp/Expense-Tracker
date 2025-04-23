@@ -9,16 +9,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.expencetracker.R
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.ui.AddCategoryActivity
 import com.example.expencetracker.ui.CurrencySelectionActivity
+import com.example.expencetracker.ui.LockActivity
+import com.example.expencetracker.ui.SetPinActivity
 import com.example.expencetracker.util.BackupManager
 import com.example.expencetracker.util.CategoryChipHelper
 import com.example.expencetracker.util.CurrencyConverter
@@ -37,12 +41,102 @@ class SettingsFragment : Fragment() {
 
     private lateinit var openBackupPicker: ActivityResultLauncher<Intent>
     private lateinit var tvLastBackup: TextView
+    private lateinit var switchPinLock: Switch
+    private lateinit var btnChangePin: Button
+    
+    private val setPinLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // PIN was successfully set
+            switchPinLock.isChecked = true
+            btnChangePin.visibility = View.VISIBLE
+            Toast.makeText(context, "PIN set successfully", Toast.LENGTH_SHORT).show()
+        } else {
+            // PIN setup was cancelled, reset the switch
+            switchPinLock.isChecked = PrefsManager.isPinEnabled()
+        }
+        updatePinLockViews()
+    }
+    
+    private val changePinLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            Toast.makeText(context, "PIN changed successfully", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    private val disablePinLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // PIN verified, now disable it
+            PrefsManager.clearPin()
+            switchPinLock.isChecked = false
+            btnChangePin.visibility = View.GONE
+            Toast.makeText(context, "PIN lock disabled", Toast.LENGTH_SHORT).show()
+        } else {
+            // PIN verification failed, reset the switch to checked
+            switchPinLock.isChecked = true
+        }
+    }
+
+    // Add a separate launcher for PIN verification before changing
+    private val verifyForChangePinLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // PIN verified, now launch the change PIN screen
+            val activity = requireActivity() as AppCompatActivity
+            val intent = Intent(requireContext(), SetPinActivity::class.java).apply {
+                putExtra("mode", SetPinActivity.MODE_NEW_PIN) // Just set a new PIN
+            }
+            startActivityForResult(intent, SetPinActivity.REQUEST_CODE_CHANGE_PIN)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_settings, container, false)
 
+        // Initialize PIN lock views
+        switchPinLock = view.findViewById(R.id.switchPinLock)
+        btnChangePin = view.findViewById(R.id.btnChangePin)
+        
+        // Set initial state
+        updatePinLockViews()
+        
+        // Set up PIN lock listeners
+        switchPinLock.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // Turn on PIN lock
+                if (!PrefsManager.isPinEnabled()) {
+                    // Launch PIN setup
+                    val activity = requireActivity() as AppCompatActivity
+                    SetPinActivity.startForNewPin(activity)
+                    // Reset switch until PIN is confirmed (it will be updated in activity result)
+                    switchPinLock.isChecked = false
+                }
+            } else {
+                // Turn off PIN lock
+                if (PrefsManager.isPinEnabled()) {
+                    // Verify current PIN before disabling
+                    val intent = Intent(requireContext(), LockActivity::class.java)
+                    disablePinLauncher.launch(intent)
+                    // Reset switch until PIN is verified (it will be updated in the launcher result)
+                    switchPinLock.isChecked = true
+                }
+            }
+        }
+        
+        btnChangePin.setOnClickListener {
+            // Use the dedicated launcher for change PIN verification
+            val intent = Intent(requireContext(), LockActivity::class.java)
+            verifyForChangePinLauncher.launch(intent)
+        }
+        
         // Populate category chips via helper
         val incomes = PrefsManager.loadCategories()
             .filter { it.type == TxType.INCOME }
@@ -144,6 +238,32 @@ class SettingsFragment : Fragment() {
     @Deprecated("Use Activity Result API instead")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        
+        // Handle PIN change result
+        if (requestCode == SetPinActivity.REQUEST_CODE_CHANGE_PIN) {
+            if (resultCode == Activity.RESULT_OK) {
+                Toast.makeText(context, "PIN changed successfully", Toast.LENGTH_SHORT).show()
+            }
+            updatePinLockViews()
+            return
+        }
+        
+        // Handle PIN verification for disabling
+        if (requestCode == LockActivity.REQUEST_CODE_UNLOCK) {
+            if (resultCode == Activity.RESULT_OK) {
+                // PIN verified - disable it
+                PrefsManager.clearPin()
+                switchPinLock.isChecked = false
+                btnChangePin.visibility = View.GONE
+                Toast.makeText(context, "PIN lock disabled", Toast.LENGTH_SHORT).show()
+            } else {
+                // PIN verification failed, reset the switch to checked
+                switchPinLock.isChecked = true
+            }
+            updatePinLockViews()
+            return
+        }
+        
         if (requestCode == REQUEST_CURRENCY && resultCode == Activity.RESULT_OK) {
             val newCurrency = data?.getStringExtra("selected_currency") ?: return
             val currentCurrency = PrefsManager.getCurrency()
@@ -298,5 +418,14 @@ class SettingsFragment : Fragment() {
                 chipExpense.addView(chip)
             }
         }
+
+        // Update PIN lock state in case it was changed elsewhere
+        updatePinLockViews()
+    }
+
+    private fun updatePinLockViews() {
+        val isPinEnabled = PrefsManager.isPinEnabled()
+        switchPinLock.isChecked = isPinEnabled
+        btnChangePin.visibility = if (isPinEnabled) View.VISIBLE else View.GONE
     }
 }

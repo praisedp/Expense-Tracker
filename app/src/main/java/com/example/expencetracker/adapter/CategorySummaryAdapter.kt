@@ -1,4 +1,4 @@
-package com.example.expencetracker.ui.adapter
+package com.example.expencetracker.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -32,7 +32,7 @@ class CategorySummaryAdapter(
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
         return if (item.name == "expense_show_all" || item.name == "income_show_all" ||
-                  item.name == "expense_hide" || item.name == "income_hide") {
+            item.name == "expense_hide" || item.name == "income_hide") {
             TYPE_SHOW_ALL
         } else {
             TYPE_CATEGORY
@@ -84,13 +84,13 @@ class CategorySummaryAdapter(
         fun bind(item: CategoryRow) {
             // Is this a hide button or show all button?
             val isHideButton = item.name.endsWith("_hide")
-            
+
             // Update text and icon
             tvShowAll.text = if (isHideButton) "Hide Categories" else "Show All Categories"
             ivIcon.setImageResource(
                 if (isHideButton) R.drawable.ic_expand_less else R.drawable.ic_expand_more
             )
-            
+
             // Clicking just passes the item to the listener
             itemView.setOnClickListener { onItemClick(item) }
         }

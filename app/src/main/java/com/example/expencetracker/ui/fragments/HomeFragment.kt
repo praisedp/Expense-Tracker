@@ -10,11 +10,11 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.expencetracker.R
+import com.example.expencetracker.adapter.CategorySummaryAdapter
 import com.example.expencetracker.data.CategoryRow          // ← data class you created
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.data.TxType
 import com.example.expencetracker.databinding.FragmentHomeBinding
-import com.example.expencetracker.ui.adapter.CategorySummaryAdapter
 import com.example.expencetracker.util.DateUtils
 import com.example.expencetracker.util.TransactionFilter
 import com.google.android.material.datepicker.MaterialDatePicker

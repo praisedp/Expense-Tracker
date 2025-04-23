@@ -1,6 +1,9 @@
 package com.example.expencetracker.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.expencetracker.R
 import com.example.expencetracker.data.PrefsManager
@@ -11,6 +14,15 @@ import com.example.expencetracker.ui.fragments.TransactionFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
+
+    private val pinLockLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode != Activity.RESULT_OK) {
+            // PIN verification failed, exit the app
+            finishAffinity()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +58,17 @@ class MainActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        
+        // Check if PIN lock is enabled and the session is not unlocked
+        if (PrefsManager.isPinEnabled() && !PrefsManager.isSessionUnlocked()) {
+            // Launch PIN entry screen
+            val intent = Intent(this, LockActivity::class.java)
+            pinLockLauncher.launch(intent)
         }
     }
 

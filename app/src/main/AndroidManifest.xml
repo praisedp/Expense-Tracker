@@ -23,6 +23,14 @@
             android:name=".ui.AddEditTransactionActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.LockActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ExpenceTracker.NoActionBar" />
+        <activity
+            android:name=".ui.SetPinActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ExpenceTracker.NoActionBar" />
+        <activity
             android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>

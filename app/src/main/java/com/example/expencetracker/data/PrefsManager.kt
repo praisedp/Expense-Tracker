@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.security.MessageDigest
 
 object PrefsManager {
 
@@ -12,15 +13,118 @@ object PrefsManager {
     private const val KEY_CATEGORIES = "categories"
     private const val KEY_BUDGET_TOTAL = "budget_total"
     private const val KEY_BUDGET_CATS  = "budget_categories"
+    
+    // PIN Lock related keys
+    private const val KEY_PIN_HASH = "pin_hash"
+    private const val KEY_PIN_ENABLED = "pin_enabled"
+    private const val KEY_SESSION_UNLOCKED = "session_unlocked"
 
     private lateinit var prefs: SharedPreferences
     private val gson = Gson()
+    
+    // Session flag to track if the user has unlocked this session
+    private var isSessionUnlocked = false
 
     // Initialize SharedPreferences – call this in your MainActivity or Application class.
     fun init(context: Context) {
         prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        // Reset session unlock status on app initialization
+        isSessionUnlocked = false
     }
-
+    
+    // ───────── PIN Lock Methods ────────────────────────────────────────
+    
+    /**
+     * Set a new PIN for app lock
+     * @param pin The 4-digit PIN to set
+     * @return true if the PIN was successfully set
+     */
+    fun setPin(pin: String): Boolean {
+        if (pin.length != 4 || !pin.all { it.isDigit() }) {
+            return false
+        }
+        
+        val pinHash = hashPin(pin)
+        prefs.edit()
+            .putString(KEY_PIN_HASH, pinHash)
+            .putBoolean(KEY_PIN_ENABLED, true)
+            .apply()
+        
+        // Automatically mark session as unlocked when setting a new PIN
+        isSessionUnlocked = true
+        return true
+    }
+    
+    /**
+     * Check if the entered PIN matches the stored PIN
+     * @param pin The PIN to verify
+     * @return true if the PIN matches
+     */
+    fun verifyPin(pin: String): Boolean {
+        val storedHash = prefs.getString(KEY_PIN_HASH, null) ?: return false
+        val inputHash = hashPin(pin)
+        val isCorrect = storedHash == inputHash
+        
+        if (isCorrect) {
+            // Mark session as unlocked when PIN is verified
+            isSessionUnlocked = true
+        }
+        
+        return isCorrect
+    }
+    
+    /**
+     * Check if PIN lock is enabled
+     * @return true if PIN lock is enabled
+     */
+    fun isPinEnabled(): Boolean {
+        return prefs.getBoolean(KEY_PIN_ENABLED, false)
+    }
+    
+    /**
+     * Clear the PIN and disable PIN lock
+     */
+    fun clearPin() {
+        prefs.edit()
+            .remove(KEY_PIN_HASH)
+            .putBoolean(KEY_PIN_ENABLED, false)
+            .apply()
+    }
+    
+    /**
+     * Check if the current session is unlocked
+     * @return true if the session is unlocked
+     */
+    fun isSessionUnlocked(): Boolean {
+        return isSessionUnlocked
+    }
+    
+    /**
+     * Mark the current session as unlocked (after successful PIN entry)
+     */
+    fun markSessionUnlocked() {
+        isSessionUnlocked = true
+    }
+    
+    /**
+     * Reset the session unlock status (e.g., when app is completely closed)
+     */
+    fun resetSessionUnlock() {
+        isSessionUnlocked = false
+    }
+    
+    /**
+     * Hash the PIN using SHA-256
+     * @param pin The PIN to hash
+     * @return The hashed PIN
+     */
+    private fun hashPin(pin: String): String {
+        val bytes = pin.toByteArray()
+        val md = MessageDigest.getInstance("SHA-256")
+        val digest = md.digest(bytes)
+        return digest.fold("") { str, it -> str + "%02x".format(it) }
+    }
+    
     // Save a list of transactions as a JSON string.
     fun saveTransactions(transactions: List<Transaction>) {
         val json = gson.toJson(transactions)
@@ -100,10 +204,10 @@ object PrefsManager {
 
     /**
      * Rename a category everywhere it is referenced so old budget rows or
-     * transactions don’t linger and cause duplicates.
+     * transactions don't linger and cause duplicates.
      *
-     * @param oldLabel The old "emoji name" label stored in prefs (e.g. "🍔 Food")
-     * @param newLabel The new "emoji name" label (e.g. "🥑 Food & Dining")
+     * @param oldLabel The old "emoji name" label stored in prefs (e.g. "🍔 Food")
+     * @param newLabel The new "emoji name" label (e.g. "🥑 Food & Dining")
      */
     fun renameCategory(oldLabel: String, newLabel: String) {
         // ---- update per‑category budgets ----

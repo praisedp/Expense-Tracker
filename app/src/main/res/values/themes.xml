@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.ExpenceTracker" parent="Base.Theme.ExpenceTracker" />
+    
+    <!-- Theme for Lock and PIN setup screens -->
+    <style name="Theme.ExpenceTracker.NoActionBar" parent="Base.Theme.ExpenceTracker">
+        <item name="android:windowBackground">@color/colorBackground</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 </resources>
