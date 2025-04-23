@@ -97,7 +97,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerCategory.adapter = adapter
 
-        // If we’re editing, select the original category
+        // If we're editing, select the original category
         (spinnerCategory.tag as? String)?.let { orig ->
             val idx = display.indexOfFirst { it.endsWith(orig) }
             if (idx >= 0) spinnerCategory.setSelection(idx)
@@ -107,60 +107,113 @@ class AddEditTransactionActivity : AppCompatActivity() {
     // ─── save logic ───────────────────────────────────────────────────
     private fun onSave() {
         if (!validate()) return
-
-        // Prevent future dates
-        if (selectedDate > System.currentTimeMillis()) {
-            Toast.makeText(this, "Date cannot be in the future", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val title = etTitle.text.toString().trim()
-        val amount = etAmount.text.toString().toDouble()
-        val category = spinnerCategory.selectedItem.toString()
-        val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
-
-        val list = PrefsManager.loadTransactions().toMutableList()
-
-        if (editingTxId == null) {
-            // ADD
-            list.add(
-                Transaction(
-                    id = System.currentTimeMillis(),
-                    title = title,
-                    amount = amount,
-                    category = category,
-                    type = type,
-                    date = selectedDate
+        
+        try {
+            val title = etTitle.text.toString().trim()
+            val amount = etAmount.text.toString().toDouble()
+            val categoryText = spinnerCategory.selectedItem.toString()
+            
+            // Extract just the category name without emoji
+            val category = categoryText.substringAfter(" ").trim()
+            
+            val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
+    
+            val list = PrefsManager.loadTransactions().toMutableList()
+    
+            if (editingTxId == null) {
+                // ADD
+                list.add(
+                    Transaction(
+                        id = System.currentTimeMillis(),
+                        title = title,
+                        amount = amount,
+                        category = category,
+                        type = type,
+                        date = selectedDate
+                    )
                 )
-            )
-        } else {
-            // EDIT: find and replace
-            val index = list.indexOfFirst { it.id == editingTxId }
-            if (index != -1) {
-                list[index] = list[index].copy(
-                    title = title,
-                    amount = amount,
-                    category = category,
-                    type = type,
-                    date = selectedDate
-                )
+            } else {
+                // EDIT: find and replace
+                val index = list.indexOfFirst { it.id == editingTxId }
+                if (index != -1) {
+                    list[index] = list[index].copy(
+                        title = title,
+                        amount = amount,
+                        category = category,
+                        type = type,
+                        date = selectedDate
+                    )
+                }
             }
+    
+            PrefsManager.saveTransactions(list)
+            BudgetAlertManager.check(this)
+            setResult(RESULT_OK)
+            finish()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error saving transaction: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-
-        PrefsManager.saveTransactions(list)
-        BudgetAlertManager.check(this)
-        setResult(RESULT_OK)
-        finish()
     }
 
     // ─── validation  ──────────────────────────────────────────────────
     private fun validate(): Boolean {
-        if (etTitle.text.isNullOrBlank()) { etTitle.error = "Title required"; return false }
-        if (etAmount.text.isNullOrBlank()) { etAmount.error = "Amount required"; return false }
-        if (etAmount.text.toString().toDoubleOrNull() == null || etAmount.text.toString().toDouble() <= 0) {
-            etAmount.error = "Enter valid amount"; return false
+        var isValid = true
+
+        // Validate title
+        when {
+            etTitle.text.isNullOrBlank() -> {
+                etTitle.error = "Title is required"
+                isValid = false
+            }
+            etTitle.text.toString().trim().length < 2 -> {
+                etTitle.error = "Title must be at least 2 characters"
+                isValid = false
+            }
+            etTitle.text.toString().trim().length > 50 -> {
+                etTitle.error = "Title must be less than 50 characters"
+                isValid = false
+            }
         }
-        return true
+
+        // Validate amount
+        val amountText = etAmount.text.toString()
+        when {
+            amountText.isBlank() -> {
+                etAmount.error = "Amount is required"
+                isValid = false
+            }
+            amountText.toDoubleOrNull() == null -> {
+                etAmount.error = "Enter a valid number"
+                isValid = false
+            }
+            amountText.toDouble() <= 0 -> {
+                etAmount.error = "Amount must be greater than zero"
+                isValid = false
+            }
+            amountText.toDouble() > 9999999.99 -> {
+                etAmount.error = "Amount is too large (max: 9,999,999.99)"
+                isValid = false
+            }
+            // Check precision - too many decimal places
+            amountText.contains(".") && amountText.substringAfter(".").length > 2 -> {
+                etAmount.error = "Only two decimal places allowed"
+                isValid = false
+            }
+        }
+
+        // Validate category is selected
+        if (spinnerCategory.adapter == null || spinnerCategory.adapter.count == 0) {
+            Toast.makeText(this, "Please add categories first", Toast.LENGTH_SHORT).show()
+            isValid = false
+        }
+
+        // Validate date
+        if (selectedDate > System.currentTimeMillis()) {
+            Toast.makeText(this, "Date cannot be in the future", Toast.LENGTH_SHORT).show()
+            isValid = false
+        }
+
+        return isValid
     }
 
     // ─── utils ────────────────────────────────────────────────────────
