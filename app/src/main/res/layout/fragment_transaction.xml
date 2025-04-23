@@ -14,29 +14,46 @@
 
         <!-- Title -->
         <TextView
+            android:id="@+id/tvPageHeading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="16dp"
-            android:paddingTop="24dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="12dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
             android:text="Transactions"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
+            android:textColor="@color/textPrimary"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
-        <!-- Material tabs for All / Income / Expenses -->
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/tabLayout"
+        <!-- Card container for tabs to add elevation and rounded corners -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:background="@android:color/white"
-            android:elevation="4dp"
-            app:tabBackground="@android:color/white"
-            app:tabIndicatorFullWidth="false"
-            app:tabIndicatorHeight="3dp"
-            app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget" />
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <!-- Material tabs for All / Income / Expenses -->
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/tab_layout_background"
+                app:tabIndicator="@drawable/tab_indicator"
+                app:tabIndicatorColor="@color/colorPrimary"
+                app:tabIndicatorFullWidth="false"
+                app:tabIndicatorHeight="3dp"
+                app:tabSelectedTextColor="@color/colorPrimary"
+                app:tabTextColor="@color/textSecondary"
+                app:tabRippleColor="@android:color/transparent"
+                app:tabTextAppearance="@style/TabTextAppearance"
+                app:tabPaddingStart="8dp"
+                app:tabPaddingEnd="8dp" />
+        </androidx.cardview.widget.CardView>
 
         <!-- The list of transactions -->
         <androidx.recyclerview.widget.RecyclerView
@@ -45,8 +62,9 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:clipToPadding="false"
+            android:paddingHorizontal="10dp"
             android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
+            android:paddingBottom="80dp" />
 
     </LinearLayout>
 
@@ -54,10 +72,12 @@
         android:id="@+id/fabAddTransaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
         android:contentDescription="@string/add_transaction"
         app:srcCompat="@drawable/ic_add"
         app:tint="@android:color/white"
-        android:layout_gravity="bottom|end"/>
+        app:backgroundTint="@color/colorAccent"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="24dp"
+        app:elevation="6dp" />
 
 </FrameLayout>

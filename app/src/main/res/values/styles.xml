@@ -31,4 +31,19 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">8dp</item>
     </style>
+
+    <!-- Add this to your styles.xml file -->
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+
+    <!-- res/values/styles.xml -->
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
 </resources>

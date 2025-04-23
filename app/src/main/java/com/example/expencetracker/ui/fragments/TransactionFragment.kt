@@ -1,6 +1,7 @@
 package com.example.expencetracker.ui.fragments
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,8 @@ import com.example.expencetracker.data.PrefsManager
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.view.Window
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.snackbar.Snackbar
@@ -117,9 +120,36 @@ class TransactionFragment : Fragment() {
             )
         }
 
-        tabLayout.addTab(tabLayout.newTab().setText("All"))
-        tabLayout.addTab(tabLayout.newTab().setText("Income"))
-        tabLayout.addTab(tabLayout.newTab().setText("Expenses"))
+        setupTabs()
+    }
+
+    private fun filter(type: TxType?) {
+        val filtered = if (type == null) {
+            allTransactions
+        } else {
+            allTransactions.filter { it.type == type }
+        }
+        adapter.updateData(filtered)
+    }
+
+    // Custom tab setup as provided by AI designer
+    private fun setupTabs() {
+        // Clear existing tabs
+        tabLayout.removeAllTabs()
+
+        // Add tabs with custom designs
+        val allTab = tabLayout.newTab().setText("All")
+        val incomeTab = tabLayout.newTab().setText("Income")
+        val expensesTab = tabLayout.newTab().setText("Expenses")
+
+        tabLayout.addTab(allTab)
+        tabLayout.addTab(incomeTab)
+        tabLayout.addTab(expensesTab)
+
+        // Make tabs fill the layout width evenly
+        tabLayout.tabGravity = TabLayout.GRAVITY_FILL
+        tabLayout.tabMode = TabLayout.MODE_FIXED
+
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
@@ -131,15 +161,6 @@ class TransactionFragment : Fragment() {
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
-    }
-
-    private fun filter(type: TxType?) {
-        val filtered = if (type == null) {
-            allTransactions
-        } else {
-            allTransactions.filter { it.type == type }
-        }
-        adapter.updateData(filtered)
     }
 
     override fun onResume() {
@@ -168,19 +189,40 @@ class TransactionFragment : Fragment() {
             .show()
     }
 
-    // ─── options dialog for long‑press ──────────────────────────────
+    // ─── Modern options dialog for long-press (without Material Components) ───────────
     private fun showOptionsDialog(tx: Transaction) {
-        val choices = arrayOf("Edit", "Delete", "Cancel")
-        AlertDialog.Builder(requireContext())
-            .setTitle("Choose action")
-            .setItems(choices) { _, which ->
-                when (which) {
-                    0 -> editTransaction(tx)            // Edit
-                    1 -> showDeleteTransactionDialog(tx) // Delete
-                    // 2 = Cancel → do nothing
-                }
-            }
-            .show()
+        // Create a custom dialog
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_transaction_options)
+
+        // Set dialog window attributes for better appearance
+        dialog.window?.apply {
+            setBackgroundDrawable(ContextCompat.getDrawable(context, R.drawable.bg_rounded_dialog))
+            // Calculate 85% of screen width
+            val displayMetrics = requireContext().resources.displayMetrics
+            val width = (displayMetrics.widthPixels * 0.85).toInt()
+            setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
+            // Add animations
+            setWindowAnimations(R.style.DialogAnimation)
+        }
+
+        // Set up the buttons with click listeners
+        dialog.findViewById<TextView>(R.id.tv_edit).setOnClickListener {
+            editTransaction(tx)
+            dialog.dismiss()
+        }
+
+        dialog.findViewById<TextView>(R.id.tv_delete).setOnClickListener {
+            showDeleteTransactionDialog(tx)
+            dialog.dismiss()
+        }
+
+        dialog.findViewById<TextView>(R.id.tv_cancel).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun editTransaction(tx: Transaction) {
