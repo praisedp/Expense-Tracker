@@ -82,33 +82,17 @@ class CategorySummaryAdapter(
         private val ivIcon: ImageView = itemView.findViewById(R.id.ivExpandIcon)
 
         fun bind(item: CategoryRow) {
-            val isExpense = item.name.startsWith("expense_")
-            val isExpanded = item.name.endsWith("_hide")
+            // Is this a hide button or show all button?
+            val isHideButton = item.name.endsWith("_hide")
             
-            // Set the appropriate text and icon based on expanded state
-            if (isExpanded) {
-                tvShowAll.text = "Hide Categories"
-                ivIcon.setImageResource(R.drawable.ic_expand_less) // You'll need this drawable
-            } else {
-                tvShowAll.text = "Show All Categories"
-                ivIcon.setImageResource(R.drawable.ic_expand_more)
-            }
+            // Update text and icon
+            tvShowAll.text = if (isHideButton) "Hide Categories" else "Show All Categories"
+            ivIcon.setImageResource(
+                if (isHideButton) R.drawable.ic_expand_less else R.drawable.ic_expand_more
+            )
             
-            val row = if (isExpense) {
-                if (isExpanded) {
-                    CategoryRow("", "expense_hide", 0.0, 0.0, 0)
-                } else {
-                    CategoryRow("", "expense_show_all", 0.0, 0.0, 0)
-                }
-            } else {
-                if (isExpanded) {
-                    CategoryRow("", "income_hide", 0.0, 0.0, 0)
-                } else {
-                    CategoryRow("", "income_show_all", 0.0, 0.0, 0)
-                }
-            }
-
-            itemView.setOnClickListener { onItemClick(row) }
+            // Clicking just passes the item to the listener
+            itemView.setOnClickListener { onItemClick(item) }
         }
     }
 }

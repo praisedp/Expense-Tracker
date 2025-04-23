@@ -103,16 +103,24 @@ class HomeFragment : Fragment() {
     }
 
     private fun showMonthPicker() {
-        MonthYearPickerDialog { year, month0 ->
-            val cal = Calendar.getInstance().apply {
-                set(Calendar.YEAR,  year)
-                set(Calendar.MONTH, month0)
+        MonthYearPickerDialog(
+            onMonthYear = { year, month0 ->
+                val cal = Calendar.getInstance().apply {
+                    set(Calendar.YEAR, year)
+                    set(Calendar.MONTH, month0)
+                }
+                monthStart = DateUtils.startOfMonth(cal.timeInMillis)
+                monthEnd = DateUtils.endOfMonth(cal.timeInMillis)
+                filterMode = FilterMode.MONTH
+                refreshDashboard()
+            },
+            onCancel = {
+                // Switch back to "All" tab when canceled
+                binding.tabFilter.getTabAt(0)?.select()
+                filterMode = FilterMode.ALL
+                refreshDashboard()
             }
-            monthStart = DateUtils.startOfMonth(cal.timeInMillis)
-            monthEnd   = DateUtils.endOfMonth(cal.timeInMillis)
-            filterMode = FilterMode.MONTH
-            refreshDashboard()
-        }.show(parentFragmentManager, "myMonthPicker")
+        ).show(parentFragmentManager, "myMonthPicker")
     }
 
     // ─── Dashboard calculation & binding ─────────────────────────
@@ -145,14 +153,34 @@ class HomeFragment : Fragment() {
         val totalExpForPct = if (totalExpense == 0.0) 1.0 else totalExpense
         val totalIncForPct = if (totalIncome  == 0.0) 1.0 else totalIncome
 
-        val expPalette = ColorTemplate.MATERIAL_COLORS
-        val incPalette = ColorTemplate.COLORFUL_COLORS
+        // Custom color palettes for expense and income
+        val expensePalette = intArrayOf(
+            resources.getColor(R.color.expense_color_1, null),
+            resources.getColor(R.color.expense_color_2, null),
+            resources.getColor(R.color.expense_color_3, null),
+            resources.getColor(R.color.expense_color_4, null),
+            resources.getColor(R.color.expense_color_5, null),
+            resources.getColor(R.color.expense_color_6, null),
+            resources.getColor(R.color.expense_color_7, null),
+            resources.getColor(R.color.expense_color_8, null)
+        )
+        
+        val incomePalette = intArrayOf(
+            resources.getColor(R.color.income_color_1, null),
+            resources.getColor(R.color.income_color_2, null),
+            resources.getColor(R.color.income_color_3, null),
+            resources.getColor(R.color.income_color_4, null),
+            resources.getColor(R.color.income_color_5, null),
+            resources.getColor(R.color.income_color_6, null),
+            resources.getColor(R.color.income_color_7, null),
+            resources.getColor(R.color.income_color_8, null)
+        )
 
         // ─── Category splits (descending order) ─────────────────────────
         allExpenseRows = expByCat.entries
             .sortedByDescending { it.value }               // biggest spend first
             .mapIndexed { idx, e ->
-                val color = expPalette[idx % expPalette.size]
+                val color = expensePalette[idx % expensePalette.size]
                 CategoryRow(
                     emojiOf(e.key),
                     e.key,
@@ -165,7 +193,7 @@ class HomeFragment : Fragment() {
         allIncomeRows = incByCat.entries
             .sortedByDescending { it.value }               // biggest income first
             .mapIndexed { idx, e ->
-                val color = incPalette[idx % incPalette.size]
+                val color = incomePalette[idx % incomePalette.size]
                 CategoryRow(
                     emojiOf(e.key),
                     e.key,
@@ -190,10 +218,20 @@ class HomeFragment : Fragment() {
             return
         }
 
+        val showAllOrHideRow = CategoryRow(
+            emoji = "",
+            name = if (isExpenseExpanded) "expense_hide" else "expense_show_all",
+            amount = 0.0,
+            percent = 0.0,
+            color = ColorTemplate.MATERIAL_COLORS[0]
+        )
+
         val displayList = if (isExpenseExpanded) {
-            allExpenseRows
+            // Show all categories + Hide button
+            allExpenseRows + showAllOrHideRow
         } else {
-            allExpenseRows.take(MAX_VISIBLE_CATEGORIES) + createShowAllRow(true)
+            // Show top categories + Show All button
+            allExpenseRows.take(MAX_VISIBLE_CATEGORIES) + showAllOrHideRow
         }
         
         expenseAdapter.submitList(displayList)
@@ -208,28 +246,23 @@ class HomeFragment : Fragment() {
             return
         }
 
+        val showAllOrHideRow = CategoryRow(
+            emoji = "",
+            name = if (isIncomeExpanded) "income_hide" else "income_show_all",
+            amount = 0.0,
+            percent = 0.0,
+            color = ColorTemplate.COLORFUL_COLORS[0]
+        )
+
         val displayList = if (isIncomeExpanded) {
-            allIncomeRows
+            // Show all categories + Hide button
+            allIncomeRows + showAllOrHideRow
         } else {
-            allIncomeRows.take(MAX_VISIBLE_CATEGORIES) + createShowAllRow(false)
+            // Show top categories + Show All button
+            allIncomeRows.take(MAX_VISIBLE_CATEGORIES) + showAllOrHideRow
         }
         
         incomeAdapter.submitList(displayList)
-    }
-
-    // Create a "Show All" row as a CategoryRow
-    private fun createShowAllRow(isExpense: Boolean): CategoryRow {
-        return CategoryRow(
-            emoji = "",
-            name = if (isExpense) {
-                if (isExpenseExpanded) "expense_hide" else "expense_show_all"
-            } else {
-                if (isIncomeExpanded) "income_hide" else "income_show_all"
-            },
-            amount = 0.0,
-            percent = 0.0,
-            color = if (isExpense) ColorTemplate.MATERIAL_COLORS[0] else ColorTemplate.COLORFUL_COLORS[0]
-        )
     }
 
     // Handle clicks on categories including the "Show All" option
@@ -276,32 +309,61 @@ class HomeFragment : Fragment() {
             holeRadius            = 60f       // already set in XML – here for clarity
             transparentCircleRadius = 0f
             setDrawEntryLabels(false)
+            setCenterTextSize(14f)
         }
     }
 
     private fun updateExpenseChart(rows: List<CategoryRow>, total: Double) {
         val entries = rows.map { PieEntry(it.amount.toFloat(), it.emoji) }
-        val colors  = ColorTemplate.MATERIAL_COLORS.toMutableList()
+        val colors = rows.map { it.color }.toMutableList()
 
         val ds = PieDataSet(entries, "Expenses").apply {
             setDrawValues(false)
             setColors(colors)
         }
         binding.pieExpense.data = PieData(ds)
-        binding.pieExpense.centerText = CurrencyFormatter.format(total)
+        
+        // Style the center text for expenses (red with minus sign)
+        val spannableText = android.text.SpannableString("- ${CurrencyFormatter.format(total)}")
+        spannableText.setSpan(
+            android.text.style.ForegroundColorSpan(resources.getColor(R.color.colorExpenseDark, null)),
+            0, spannableText.length, 
+            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannableText.setSpan(
+            android.text.style.RelativeSizeSpan(1.2f),
+            0, spannableText.length,
+            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        
+        binding.pieExpense.centerText = spannableText
         binding.pieExpense.invalidate()
     }
 
     private fun updateIncomeChart(rows: List<CategoryRow>, total: Double) {
         val entries = rows.map { PieEntry(it.amount.toFloat(), it.emoji) }
-        val colors  = ColorTemplate.COLORFUL_COLORS.toMutableList()
+        val colors = rows.map { it.color }.toMutableList()
 
         val ds = PieDataSet(entries, "Income").apply {
             setDrawValues(false)
             setColors(colors)
         }
         binding.pieIncome.data = PieData(ds)
-        binding.pieIncome.centerText = CurrencyFormatter.format(total)
+        
+        // Style the center text for income (green with plus sign)
+        val spannableText = android.text.SpannableString("+ ${CurrencyFormatter.format(total)}")
+        spannableText.setSpan(
+            android.text.style.ForegroundColorSpan(resources.getColor(R.color.colorIncomeDark, null)),
+            0, spannableText.length, 
+            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannableText.setSpan(
+            android.text.style.RelativeSizeSpan(1.2f),
+            0, spannableText.length,
+            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        
+        binding.pieIncome.centerText = spannableText
         binding.pieIncome.invalidate()
     }
 }
