@@ -17,6 +17,7 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.tabs.TabLayout
 import java.text.NumberFormat
 import com.example.expencetracker.ui.dialogs.MonthYearPickerDialog
+import com.example.expencetracker.util.CurrencyFormatter
 import java.util.Calendar
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -119,7 +120,7 @@ class HomeFragment : Fragment() {
         val totalExpense = list.filter { it.type == TxType.EXPENSE }.sumOf { it.amount }
         val balance      = totalIncome - totalExpense
 
-        val moneyFmt = NumberFormat.getCurrencyInstance()
+        val moneyFmt = CurrencyFormatter.numberFormat()
         binding.tvBalance.text      = moneyFmt.format(balance)
         binding.tvTotalIncome.text  = "+ ${moneyFmt.format(totalIncome)}"
         binding.tvTotalExpense.text = "- ${moneyFmt.format(totalExpense)}"
@@ -180,8 +181,7 @@ class HomeFragment : Fragment() {
             setColors(colors)
         }
         binding.pieExpense.data = PieData(ds)
-        binding.pieExpense.centerText = java.text.NumberFormat
-            .getCurrencyInstance().format(total)
+        binding.pieExpense.centerText = CurrencyFormatter.format(total)
         binding.pieExpense.invalidate()
     }
 
@@ -194,8 +194,7 @@ class HomeFragment : Fragment() {
             setColors(colors)
         }
         binding.pieIncome.data = PieData(ds)
-        binding.pieIncome.centerText = java.text.NumberFormat
-            .getCurrencyInstance().format(total)
+        binding.pieIncome.centerText = CurrencyFormatter.format(total)
         binding.pieIncome.invalidate()
     }
 }
