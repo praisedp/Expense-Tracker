@@ -23,6 +23,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/card_gradient_background"
             android:padding="24dp">
 
             <ImageView
@@ -31,7 +32,7 @@
                 android:layout_height="80dp"
                 android:contentDescription="Security icon"
                 android:src="@drawable/ic_security"
-                app:tint="@color/colorIncome"
+                app:tint="@color/colorPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -44,7 +45,7 @@
                 android:gravity="center"
                 android:text="Set up PIN lock"
                 android:textColor="@color/textPrimary"
-                android:textSize="22sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -70,10 +71,10 @@
                 android:layout_marginTop="32dp"
                 android:hint="New PIN"
                 app:boxBackgroundColor="@android:color/transparent"
-                app:boxStrokeColor="@color/colorIncome"
+                app:boxStrokeColor="@color/colorPrimary"
                 app:boxStrokeWidth="2dp"
                 app:endIconMode="password_toggle"
-                app:endIconTint="@color/colorIncome"
+                app:endIconTint="@color/colorPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tvSubtitle">
@@ -95,10 +96,10 @@
                 android:layout_marginTop="16dp"
                 android:hint="Confirm PIN"
                 app:boxBackgroundColor="@android:color/transparent"
-                app:boxStrokeColor="@color/colorIncome"
+                app:boxStrokeColor="@color/colorPrimary"
                 app:boxStrokeWidth="2dp"
                 app:endIconMode="password_toggle"
-                app:endIconTint="@color/colorIncome"
+                app:endIconTint="@color/colorPrimary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tilNewPin">
@@ -157,7 +158,7 @@
                     android:text="Save"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:backgroundTint="@color/colorIncome"
+                    app:backgroundTint="@color/colorPrimary"
                     app:cornerRadius="12dp" />
 
             </LinearLayout>

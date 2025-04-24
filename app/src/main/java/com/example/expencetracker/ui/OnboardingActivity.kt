@@ -44,8 +44,7 @@ class OnboardingActivity : AppCompatActivity() {
     private fun setupViewPager() {
         adapter = OnboardingViewPagerAdapter(this)
         binding.viewPager.adapter = adapter
-        binding.dotsIndicator.setViewPager(binding.viewPager)
-
+        
         binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 

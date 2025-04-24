@@ -12,7 +12,7 @@
         android:layout_marginTop="32dp"
         android:gravity="center"
         android:text="Pick Your Currency"
-        android:textColor="@color/colorPrimary"
+        android:textColor="@color/cardview_dark_background"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
