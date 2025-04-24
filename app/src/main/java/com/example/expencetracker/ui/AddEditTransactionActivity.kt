@@ -116,13 +116,20 @@ class AddEditTransactionActivity : AppCompatActivity() {
         val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
         val filteredCategories = saved.filter { it.type == type }
         
-        // Update adapter with filtered categories
-        categoryAdapter.updateCategories(filteredCategories)
+        // Update adapter with filtered categories and pass the current type
+        categoryAdapter.updateCategories(filteredCategories, type)
         
         // If we're editing, select the original category
         selectedCategory?.let { originalCategory ->
             categoryAdapter.selectCategory(originalCategory)
         }
+    }
+
+    // Override onResume to refresh categories when returning from AddCategoryActivity
+    override fun onResume() {
+        super.onResume()
+        // Refresh categories when returning to this activity (e.g., after adding a new category)
+        updateCategoryBubbles()
     }
 
     // ─── save logic ───────────────────────────────────────────────────

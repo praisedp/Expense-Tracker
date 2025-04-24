@@ -132,41 +132,50 @@ class AnalyticsFragment : Fragment() {
     }
     
     private fun setupCategorySpinners() {
-        // Get expense categories only (we'll focus on expense comparisons)
-        val categories = PrefsManager.loadCategories()
+        // Get all expense categories
+        val expenseCategories = PrefsManager.loadCategories()
             .filter { it.type == TxType.EXPENSE }
             .map { "${it.emoji} ${it.name}" }
             .toMutableList()
         
-        // If we have less than 2 categories, add defaults
-        if (categories.size < 2) {
-            if (categories.isEmpty()) {
-                categories.add("🍔 Dining Out")
-            }
-            categories.add("🥬 Groceries")
+        // Add a default option if no categories exist
+        if (expenseCategories.isEmpty()) {
+            expenseCategories.add("�� Other")
         }
         
-        availableCategories = categories
+        availableCategories = expenseCategories
         
-        // Setup adapters for both spinners
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        // Create adapter for spinners
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            expenseCategories
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
         
+        // Set adapters to spinners
         spinnerPrimaryCategory.adapter = adapter
         spinnerSecondaryCategory.adapter = adapter
         
-        // Set initial selections to different categories if possible
-        spinnerPrimaryCategory.setSelection(0)
-        spinnerSecondaryCategory.setSelection(minOf(1, categories.size - 1))
+        // Set initial selections to different values if possible
+        if (expenseCategories.size > 1) {
+            spinnerPrimaryCategory.setSelection(0)
+            spinnerSecondaryCategory.setSelection(1)
+            primaryCategoryIndex = 0
+            secondaryCategoryIndex = 1
+        }
         
-        // Setup listeners
+        // Set listeners
         spinnerPrimaryCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 primaryCategoryIndex = position
                 updateCategoryComparison()
             }
             
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
         }
         
         spinnerSecondaryCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -175,8 +184,13 @@ class AnalyticsFragment : Fragment() {
                 updateCategoryComparison()
             }
             
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
         }
+        
+        // Initial update
+        updateCategoryComparison()
     }
     
     private fun setupTimeFrameToggle() {
@@ -949,46 +963,64 @@ class AnalyticsFragment : Fragment() {
         val primarySum = sumForCategory(primaryCategory, startOfMonth, endOfMonth)
         val secondarySum = sumForCategory(secondaryCategory, startOfMonth, endOfMonth)
         
-        // Update amount texts
+        // Update amount texts with better formatting
         tvPrimaryCategoryAmount.text = CurrencyFormatter.format(primarySum)
         tvSecondaryCategoryAmount.text = CurrencyFormatter.format(secondarySum)
+        
+        // Set category icons in front of names for better visual recognition
+        tvPrimaryCategoryName.text = "${primaryCategory.substringBefore(' ')} ${primaryCategoryName}:"
+        tvSecondaryCategoryName.text = "${secondaryCategory.substringBefore(' ')} ${secondaryCategoryName}:"
         
         // Calculate ratio and update progress bars
         val maxProgress = 100
         if (secondarySum > 0 && primarySum > 0) {
-            val ratio = (primarySum / secondarySum)
-            // Set progress relative to the larger value
-            val secondaryProgress = maxProgress
-            val primaryProgress = (ratio * maxProgress).toInt().coerceIn(1, maxProgress)
-            
-            progressPrimaryCategory.progress = primaryProgress
-            progressSecondaryCategory.progress = secondaryProgress
-            
-            // Update comparison text
-            val pctString = String.format("%.0f", ratio * 100)
-            tvCategoryComparison.text = "$primaryCategoryName is $pctString% of $secondaryCategoryName spending"
-            
-            // Calculate difference
-            val diff = secondarySum - primarySum
-            tvCategoryDifference.text = if (diff > 0) {
-                "You spent ${CurrencyFormatter.format(diff)} more on $secondaryCategoryName"
-            } else if (diff < 0) {
-                "You spent ${CurrencyFormatter.format(abs(diff))} more on $primaryCategoryName"
+            // Use a clearer visual indication of which amount is higher
+            if (primarySum > secondarySum) {
+                progressPrimaryCategory.progress = maxProgress
+                progressSecondaryCategory.progress = ((secondarySum / primarySum) * maxProgress).toInt().coerceIn(1, maxProgress)
+                
+                // Use primary color for the primary category and a different color for secondary
+                progressPrimaryCategory.progressTintList = ContextCompat.getColorStateList(requireContext(), R.color.colorPrimary)
+                progressSecondaryCategory.progressTintList = ContextCompat.getColorStateList(requireContext(), R.color.colorAccent)
+                
+                // Update comparison text with more precise percentage
+                val pctString = String.format("%.0f", (secondarySum / primarySum) * 100)
+                tvCategoryComparison.text = "$secondaryCategoryName is $pctString% of $primaryCategoryName spending"
             } else {
-                "You spent the same on both categories"
+                progressSecondaryCategory.progress = maxProgress
+                progressPrimaryCategory.progress = ((primarySum / secondarySum) * maxProgress).toInt().coerceIn(1, maxProgress)
+                
+                // Switch colors for visual consistency - higher amount gets primary color
+                progressSecondaryCategory.progressTintList = ContextCompat.getColorStateList(requireContext(), R.color.colorPrimary)
+                progressPrimaryCategory.progressTintList = ContextCompat.getColorStateList(requireContext(), R.color.colorAccent)
+                
+                // Update comparison text with more precise percentage
+                val pctString = String.format("%.0f", (primarySum / secondarySum) * 100)
+                tvCategoryComparison.text = "$primaryCategoryName is $pctString% of $secondaryCategoryName spending"
             }
+            
+            // Calculate difference with more precise formatting
+            val diff = Math.abs(secondarySum - primarySum)
+            tvCategoryDifference.text = if (secondarySum > primarySum) {
+                "You spent ${CurrencyFormatter.format(diff)} more on $secondaryCategoryName"
+            } else {
+                "You spent ${CurrencyFormatter.format(diff)} more on $primaryCategoryName"
+            }
+            
+            // Set text color based on the difference to improve readability
+            tvCategoryDifference.setTextColor(ContextCompat.getColor(requireContext(), R.color.textSecondary))
         } else {
-            // Handle case when one or both are zero
+            // Handle case when one or both are zero with clearer messaging
             if (primarySum > 0) {
                 progressPrimaryCategory.progress = maxProgress
                 progressSecondaryCategory.progress = 0
                 tvCategoryComparison.text = "No spending on $secondaryCategoryName this month"
-                tvCategoryDifference.text = "You only spent on $primaryCategoryName"
+                tvCategoryDifference.text = "You only spent ${CurrencyFormatter.format(primarySum)} on $primaryCategoryName"
             } else if (secondarySum > 0) {
                 progressPrimaryCategory.progress = 0
                 progressSecondaryCategory.progress = maxProgress
                 tvCategoryComparison.text = "No spending on $primaryCategoryName this month"
-                tvCategoryDifference.text = "You only spent on $secondaryCategoryName"
+                tvCategoryDifference.text = "You only spent ${CurrencyFormatter.format(secondarySum)} on $secondaryCategoryName"
             } else {
                 // Both zero
                 progressPrimaryCategory.progress = 0

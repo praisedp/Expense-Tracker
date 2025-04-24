@@ -6,7 +6,7 @@
     <color name="colorPrimaryLight">#FFD700</color>  <!-- Bright Gold  -->
     <color name="colorAccent">#CD7F32</color>        <!-- Warm Bronze -->
     <color name="icon_tint">#D4AF37</color>
-
+    <color name="white">#FFFFFF</color>
     <color name="expense_category_stroke">#D32F2F</color>
     <!-- Success / Income -->
     <color name="colorIncome">#388E3C</color>        <!-- Emerald  -->

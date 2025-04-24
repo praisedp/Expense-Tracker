@@ -21,9 +21,84 @@ import android.os.Build
 
 object BackupManager {
     private const val BACKUP_PREFIX = "backup_"
+    private const val INTERNAL_BACKUP_FILENAME = "internal_backup.json"
 
+    /**
+     * Creates an internal backup in the app's private directory.
+     * @return File path of the backup
+     */
+    fun createInternalBackup(context: Context): String {
+        // Gather everything
+        val data = BackupData(
+            transactions     = PrefsManager.loadTransactions(),
+            categories       = PrefsManager.loadCategories(),
+            totalBudget      = PrefsManager.getTotalBudget(),
+            categoryBudgets  = PrefsManager.loadCategoryBudgets(),
+            currency         = PrefsManager.getCurrency()
+        )
 
-    fun exportBackup(context: Context): String {
+        // Serialize JSON
+        val gson = Gson()
+        val json = gson.toJson(data)
+
+        // Save to internal storage
+        val file = File(context.filesDir, INTERNAL_BACKUP_FILENAME)
+        file.outputStream().use { it.write(json.toByteArray()) }
+        
+        // Return the absolute path
+        return file.absolutePath
+    }
+    
+    /**
+     * Restores data from the internal backup if it exists.
+     * @return true on success, false if backup doesn't exist or on failure
+     */
+    suspend fun restoreInternalBackup(context: Context): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val file = File(context.filesDir, INTERNAL_BACKUP_FILENAME)
+                
+                // Check if backup exists
+                if (!file.exists()) {
+                    return@withContext false
+                }
+                
+                // Read the backup
+                val json = file.readText()
+                
+                // Deserialize
+                val data = Gson().fromJson(json, BackupData::class.java)
+                
+                // Overwrite prefs
+                PrefsManager.saveTransactions(data.transactions)
+                PrefsManager.saveCategories(data.categories)
+                PrefsManager.setTotalBudget(data.totalBudget)
+                PrefsManager.saveCategoryBudgets(data.categoryBudgets)
+                PrefsManager.setCurrency(data.currency)
+                
+                true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                false
+            }
+        }
+    }
+    
+    /**
+     * Checks if an internal backup exists.
+     * @return true if backup exists, false otherwise
+     */
+    fun internalBackupExists(context: Context): Boolean {
+        val file = File(context.filesDir, INTERNAL_BACKUP_FILENAME)
+        return file.exists()
+    }
+
+    /**
+     * Exports data to Downloads folder for sharing/external backup.
+     * This was previously named exportBackup.
+     * @return String representing the path where the file was saved
+     */
+    fun exportToDownloads(context: Context): String {
         // Gather everything
         val data = BackupData(
             transactions     = PrefsManager.loadTransactions(),
@@ -41,7 +116,7 @@ object BackupManager {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val filename = "$BACKUP_PREFIX$timestamp.json"
 
-        // 3) Attempt public‑Downloads via MediaStore (API 29+)
+        // 3) Attempt public‑Downloads via MediaStore (API 29+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val resolver = context.contentResolver
             val contentValues = ContentValues().apply {

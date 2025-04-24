@@ -39,6 +39,7 @@ import java.util.Currency
 import java.util.Date
 import java.util.Locale
 import com.google.android.material.switchmaterial.SwitchMaterial
+import android.app.AlertDialog
 
 class SettingsFragment : Fragment() {
     private val REQUEST_CURRENCY = 101
@@ -48,6 +49,9 @@ class SettingsFragment : Fragment() {
     private lateinit var switchPinLock: Switch
     private lateinit var btnChangePin: Button
     private lateinit var switchDarkMode: SwitchMaterial
+    private lateinit var btnInternalBackup: Button
+    private lateinit var btnExport: Button
+    private lateinit var btnRestore: Button
     private val prefs: SharedPreferences by lazy {
         requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     }
@@ -189,6 +193,11 @@ class SettingsFragment : Fragment() {
             }
         }
 
+        // Find both new buttons
+        btnInternalBackup = view.findViewById(R.id.btnInternalBackup)
+        btnExport = view.findViewById(R.id.btnExport)
+        btnRestore = view.findViewById(R.id.btnRestore)
+
         // Button for changing currency
         val btnChangeCurrency: Button = view.findViewById(R.id.btnChangeCurrency)
         btnChangeCurrency.setOnClickListener {
@@ -196,12 +205,11 @@ class SettingsFragment : Fragment() {
             startActivityForResult(intent, REQUEST_CURRENCY)
         }
 
-        // Backup
-        val btnBackup = view.findViewById<Button>(R.id.btnBackup)
-        btnBackup.setOnClickListener {
+        // Internal Backup
+        btnInternalBackup.setOnClickListener {
             try {
-                val path = BackupManager.exportBackup(requireContext())
-                Toast.makeText(context, getString(R.string.backup_success, path), Toast.LENGTH_LONG).show()
+                val path = BackupManager.createInternalBackup(requireContext())
+                Toast.makeText(context, "Internal backup created successfully", Toast.LENGTH_SHORT).show()
 
                 // Record backup timestamp and update UI
                 val now = System.currentTimeMillis()
@@ -214,14 +222,43 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        // Restore
-        val btnRestore = view.findViewById<Button>(R.id.btnRestore)
-        btnRestore.setOnClickListener {
-            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-                addCategory(Intent.CATEGORY_OPENABLE)
-                type = "application/json"
+        // Export (Previously "Backup")
+        btnExport.setOnClickListener {
+            try {
+                val path = BackupManager.exportToDownloads(requireContext())
+                Toast.makeText(context, getString(R.string.backup_success, path), Toast.LENGTH_LONG).show()
+
+                // Also record timestamp for consistency
+                val now = System.currentTimeMillis()
+                PrefsManager.setLastBackupTime(now)
+                val fmt = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+                tvLastBackup.text = "Last backup: ${fmt.format(Date(now))}"
+
+            } catch (e: Exception) {
+                Toast.makeText(context, getString(R.string.backup_failure, e.message ?: ""), Toast.LENGTH_LONG).show()
             }
-            openBackupPicker.launch(intent)
+        }
+
+        // Restore - updated to check for internal backup first
+        btnRestore.setOnClickListener {
+            // Check if we have an internal backup
+            if (BackupManager.internalBackupExists(requireContext())) {
+                // Show dialog asking whether to restore from internal or external
+                val options = arrayOf("Internal Backup", "External File")
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Restore From")
+                    .setItems(options) { _, which ->
+                        when (which) {
+                            0 -> restoreFromInternal()
+                            1 -> restoreFromExternal()
+                        }
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            } else {
+                // No internal backup, go straight to file picker
+                restoreFromExternal()
+            }
         }
 
         // --- Show current currency dynamically ---
@@ -456,5 +493,24 @@ class SettingsFragment : Fragment() {
         val isPinEnabled = PrefsManager.isPinEnabled()
         switchPinLock.isChecked = isPinEnabled
         btnChangePin.visibility = if (isPinEnabled) View.VISIBLE else View.GONE
+    }
+
+    // Add helper methods for restore operations
+    private fun restoreFromInternal() {
+        lifecycleScope.launch {
+            // Show loading indicator or disable UI if needed
+            val success = BackupManager.restoreInternalBackup(requireContext())
+            val message = if (success) "Internal backup restored successfully" 
+                          else "Failed to restore internal backup"
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+    
+    private fun restoreFromExternal() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/json"
+        }
+        openBackupPicker.launch(intent)
     }
 }

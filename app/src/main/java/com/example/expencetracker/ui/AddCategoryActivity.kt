@@ -41,6 +41,7 @@ class AddCategoryActivity : AppCompatActivity() {
         val originalName = intent.getStringExtra("edit_category_name")
         val originalEmoji= intent.getStringExtra("edit_category_emoji")
         val originalType = intent.getStringExtra("edit_category_type")
+        val defaultType  = intent.getStringExtra("default_category_type")
 
         if (isEdit && originalName != null && originalType != null) {
             // Pre-fill fields
@@ -52,6 +53,13 @@ class AddCategoryActivity : AppCompatActivity() {
                 rbCatExpense.isChecked = true
             }
             btnSaveCategory.text = getString(R.string.update_category)
+        } else if (!isEdit && defaultType != null) {
+            // For new categories, select the type based on the transaction screen's current type
+            if (defaultType == TxType.INCOME.name) {
+                rbCatIncome.isChecked = true
+            } else {
+                rbCatExpense.isChecked = true
+            }
         }
 
         // 3) Save / Update logic

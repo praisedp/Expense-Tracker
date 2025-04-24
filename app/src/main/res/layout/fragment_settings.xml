@@ -311,17 +311,32 @@
                     android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnBackup"
+                    android:id="@+id/btnInternalBackup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/backup_transactions"
+                    android:text="Backup"
+                    android:textAllCaps="false"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/colorPrimary"
+                    app:icon="@drawable/ic_backup"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconTint="@color/colorSurface" 
+                    android:layout_marginBottom="8dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Export to Downloads"
                     android:textAllCaps="false"
                     app:cornerRadius="8dp"
                     app:backgroundTint="@color/colorPrimary"
                     app:icon="@drawable/ic_cloud_upload"
                     app:iconGravity="textStart"
                     app:iconPadding="8dp"
-                    app:iconTint="@color/colorSurface" />
+                    app:iconTint="@color/colorSurface" 
+                    android:layout_marginBottom="8dp"/>
 
 
                 <com.google.android.material.button.MaterialButton

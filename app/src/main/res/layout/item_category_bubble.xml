@@ -22,7 +22,7 @@
         android:paddingEnd="12dp"
         android:paddingBottom="6dp"
         android:textSize="14sp"
-        android:textColor="@color/textPrimary"
+        android:textColor="@android:color/black"
         tools:text="🍔 Food" />
 
 </com.google.android.material.card.MaterialCardView> 

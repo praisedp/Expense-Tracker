@@ -366,14 +366,15 @@
             android:textColor="@color/textPrimary"
             android:textStyle="bold" />
 
-        <!-- Category-to-Category Benchmark Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardCategoryBenchmark"
+        <!-- Category Comparison Section -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardCategoryComparison"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="16dp">
+            android:backgroundTint="@color/white"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -381,150 +382,134 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Row for category selection -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Category Comparison"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp"
+                    app:drawableStartCompat="@drawable/ic_compare" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Compare:"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp" />
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
 
                     <Spinner
                         android:id="@+id/spinnerPrimaryCategory"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp" />
+                        android:background="@drawable/bg_spinner"
+                        android:padding="12dp"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="vs"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp" />
+                    <View
+                        android:layout_width="16dp"
+                        android:layout_height="0dp"/>
 
                     <Spinner
                         android:id="@+id/spinnerSecondaryCategory"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:layout_marginStart="8dp" />
+                        android:background="@drawable/bg_spinner"
+                        android:padding="12dp"/>
                 </LinearLayout>
 
-                <!-- Category visualization -->
+                <!-- First Category -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvPrimaryCategoryName"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tvPrimaryCategoryAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textEnd"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimary"/>
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressPrimaryCategory"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:progressDrawable="@drawable/progress_bar_primary"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Second Category -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvSecondaryCategoryName"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:id="@+id/tvSecondaryCategoryAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="textEnd"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorAccent"/>
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progressSecondaryCategory"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:progressDrawable="@drawable/progress_bar_secondary"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Comparison Text -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginTop="16dp">
+                    android:background="@drawable/bg_comparison_result"
+                    android:padding="12dp">
 
-                    <!-- First category -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <TextView
-                            android:id="@+id/tvPrimaryCategoryName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minWidth="100dp"
-                            android:text="Dining Out:"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvPrimaryCategoryAmount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="$0"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <ProgressBar
-                            android:id="@+id/progressPrimaryCategory"
-                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                            android:layout_width="0dp"
-                            android:layout_height="8dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:progress="60"
-                            android:progressTint="#9C27B0" />
-                    </LinearLayout>
-
-                    <!-- Second category -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="16dp">
-
-                        <TextView
-                            android:id="@+id/tvSecondaryCategoryName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minWidth="100dp"
-                            android:text="Groceries:"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvSecondaryCategoryAmount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:text="$0"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <ProgressBar
-                            android:id="@+id/progressSecondaryCategory"
-                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                            android:layout_width="0dp"
-                            android:layout_height="8dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:progress="100"
-                            android:progressTint="#4CAF50" />
-                    </LinearLayout>
-
-                    <!-- Comparison text -->
                     <TextView
                         android:id="@+id/tvCategoryComparison"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Dining Out is 60% of Groceries spending"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="14sp"
                         android:textStyle="bold"
-                        android:gravity="center" />
+                        android:textSize="14sp"
+                        android:layout_marginBottom="4dp"/>
 
                     <TextView
                         android:id="@+id/tvCategoryDifference"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="You spent $150 more on Groceries"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="12sp"
-                        android:gravity="center" />
+                        android:textSize="14sp"/>
                 </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
+        <!-- End Category Comparison Section -->
 
         <!-- Additional analytics here in the future -->
 
