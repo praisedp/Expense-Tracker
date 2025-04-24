@@ -63,21 +63,27 @@ class TransactionAdapter(
             // Category text
             if (transaction.category.isNotBlank()) {
                 tvCategory.visibility = View.VISIBLE
-                tvCategory.text = transaction.category
+                
+                // Check if category contains a space (emoji format)
+                if (transaction.category.contains(" ")) {
+                    // Display only the name part (after the emoji)
+                    tvCategory.text = transaction.category.substringAfter(" ")
+                    
+                    // Extract emoji (before the space)
+                    ivCategoryIcon.text = transaction.category.substringBefore(" ")
+                } else {
+                    // For older format or categories without emoji
+                    tvCategory.text = transaction.category
+                    ivCategoryIcon.text = "📋" // Default icon
+                }
             } else {
                 tvCategory.visibility = View.GONE
+                ivCategoryIcon.text = "📋" // Default icon
             }
-
-            val emoji = transaction.category.substringBefore(" ")
-
-            // 2) Display it in the circular TextView
-            ivCategoryIcon.text = emoji
 
             // 3) (Optional) Retint the background if you still want coloring:
             (ivCategoryIcon.background as? GradientDrawable)
                 ?.setColor(getCategoryColor(transaction.category))
-
-
 
             // Long‑press to delete/edit
             itemView.setOnLongClickListener {

@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary (Blue) -->
-    <color name="colorPrimary">#64B5F6</color>       <!-- Blue 300  -->
-    <color name="colorPrimaryDark">#1976D2</color>   <!-- Blue 700  -->
-    <color name="colorPrimaryLight">#0D47A1</color>  <!-- Blue 900  -->
-    <color name="colorAccent">#64B5F6</color>        <!-- Changed to match colorPrimary -->
-    <color name="icon_tint">#1976D2</color>
+    <!-- Primary Gold -->
+    <color name="colorPrimary">#FFD700</color>       <!-- Bright Gold  -->
+    <color name="colorPrimaryDark">#D4AF37</color>   <!-- Oro Gold  -->
+    <color name="colorPrimaryLight">#B8971F</color>  <!-- Darker Oro Gold  -->
+    <color name="colorAccent">#CD7F32</color>        <!-- Warm Bronze -->
+    <color name="icon_tint">#FFD700</color>
 
-    <color name="expense_category_stroke">#FF8A80</color>
+    <color name="expense_category_stroke">#EF9A9A</color>
     <!-- Success / Income -->
-    <color name="colorIncome">#81C784</color>        <!-- Green 300  -->
-    <color name="colorIncomeDark">#388E3C</color>    <!-- Green 700  -->
-    <color name="colorIncomeLight">#1B5E20</color>   <!-- Green 900  -->
+    <color name="colorIncome">#66BB6A</color>        <!-- Light Emerald  -->
+    <color name="colorIncomeDark">#388E3C</color>    <!-- Emerald  -->
+    <color name="colorIncomeLight">#1B5E20</color>   <!-- Dark Emerald  -->
 
     <!-- Error / Expense -->
-    <color name="colorExpense">#E57373</color>       <!-- Red 300  -->
-    <color name="colorExpenseDark">#D32F2F</color>   <!-- Red 700  -->
-    <color name="colorExpenseLight">#B71C1C</color>  <!-- Red 900  -->
+    <color name="colorExpense">#EF5350</color>       <!-- Light Crimson Alert  -->
+    <color name="colorExpenseDark">#D32F2F</color>   <!-- Crimson Alert  -->
+    <color name="colorExpenseLight">#B71C1C</color>  <!-- Dark Crimson  -->
 
     <!-- Surface & Background -->
-    <color name="colorBackground">#121212</color>    <!-- Dark Grey  -->
-    <color name="colorSurface">#1E1E1E</color>       <!-- Dark Surface  -->
+    <color name="colorBackground">#2C2922</color>    <!-- Dark Bronze  -->
+    <color name="colorSurface">#3B372E</color>       <!-- Darker Bronze  -->
 
     <!-- Text -->
-    <color name="textPrimary">#FFFFFF</color>
-    <color name="textSecondary">#B3FFFFFF</color>
-    <color name="textHint">#80FFFFFF</color>
+    <color name="textPrimary">#F9F7F1</color>        <!-- Ivory -->
+    <color name="textSecondary">#EFE6D1</color>      <!-- Sand -->
+    <color name="textHint">#B0A79D</color>           <!-- Stone -->
 
     <!-- Alerts & Info -->
-    <color name="colorWarning">#FFB300</color>       <!-- Amber 600  -->
-    <color name="colorInfo">#03A9F4</color>          <!-- Light Blue 500  -->
+    <color name="colorWarning">#FFA000</color>       <!-- Amber Alert  -->
+    <color name="colorInfo">#00897B</color>          <!-- Aqua  -->
     
-    <!-- Custom Expense Chart Palette - Red/Orange Variants -->
-    <color name="expense_color_1">#E57373</color>    <!-- Red 300 -->
-    <color name="expense_color_2">#F06292</color>    <!-- Pink 300 -->
-    <color name="expense_color_3">#FF8A65</color>    <!-- Deep Orange 300 -->
-    <color name="expense_color_4">#FFB74D</color>    <!-- Orange 300 -->
-    <color name="expense_color_5">#D32F2F</color>    <!-- Red 700 -->
-    <color name="expense_color_6">#C2185B</color>    <!-- Pink 700 -->
-    <color name="expense_color_7">#BF360C</color>    <!-- Deep Orange 900 -->
-    <color name="expense_color_8">#EF6C00</color>    <!-- Orange 800 -->
+    <!-- Custom Expense Chart Palette - Gold/Bronze/Red Variants, lighter for visibility -->
+    <color name="expense_color_1">#EF5350</color>    <!-- Light Crimson Alert -->
+    <color name="expense_color_2">#FF7043</color>    <!-- Light Deep Orange -->
+    <color name="expense_color_3">#FFB74D</color>    <!-- Light Amber Alert -->
+    <color name="expense_color_4">#DDA558</color>    <!-- Light Warm Bronze -->
+    <color name="expense_color_5">#D32F2F</color>    <!-- Crimson Alert -->
+    <color name="expense_color_6">#E64A19</color>    <!-- Deep Orange -->
+    <color name="expense_color_7">#FFA000</color>    <!-- Amber Alert -->
+    <color name="expense_color_8">#CD7F32</color>    <!-- Warm Bronze -->
     
-    <!-- Custom Income Chart Palette - Green/Blue Variants -->
-    <color name="income_color_1">#81C784</color>     <!-- Green 300 -->
-    <color name="income_color_2">#4DB6AC</color>     <!-- Teal 300 -->
-    <color name="income_color_3">#64B5F6</color>     <!-- Blue 300 -->
-    <color name="income_color_4">#4DD0E1</color>     <!-- Cyan 300 -->
-    <color name="income_color_5">#388E3C</color>     <!-- Green 700 -->
-    <color name="income_color_6">#00796B</color>     <!-- Teal 700 -->
-    <color name="income_color_7">#1976D2</color>     <!-- Blue 700 -->
-    <color name="income_color_8">#0097A7</color>     <!-- Cyan 700 -->
+    <!-- Custom Income Chart Palette - Gold/Green/Teal Variants, lighter for visibility -->
+    <color name="income_color_1">#66BB6A</color>     <!-- Light Emerald -->
+    <color name="income_color_2">#26A69A</color>     <!-- Light Aqua -->
+    <color name="income_color_3">#FFD700</color>     <!-- Bright Gold -->
+    <color name="income_color_4">#F9E076</color>     <!-- Lighter Gold -->
+    <color name="income_color_5">#388E3C</color>     <!-- Emerald -->
+    <color name="income_color_6">#00897B</color>     <!-- Aqua -->
+    <color name="income_color_7">#D4AF37</color>     <!-- Oro Gold -->
+    <color name="income_color_8">#DEBA13</color>     <!-- Lighter Bright Gold -->
 </resources> 

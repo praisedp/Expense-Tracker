@@ -11,6 +11,12 @@
         android:id="@+id/nav_transactions"
         android:icon="@drawable/ic_nav_transactions"
         android:title="Transactions" />
+        
+    <!-- Analytics: For visualizing financial trends and budget information -->
+    <item
+        android:id="@+id/nav_analytics"
+        android:icon="@drawable/ic_analytics"
+        android:title="Analytics" />
 
     <!-- Budget: For setting a monthly budget and viewing progress -->
     <item

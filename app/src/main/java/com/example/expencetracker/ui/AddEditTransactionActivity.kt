@@ -113,8 +113,8 @@ class AddEditTransactionActivity : AppCompatActivity() {
             val amount = etAmount.text.toString().toDouble()
             val categoryText = spinnerCategory.selectedItem.toString()
             
-            // Extract just the category name without emoji
-            val category = categoryText.substringAfter(" ").trim()
+            // Save the full category text including the emoji
+            val category = categoryText
             
             val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
     

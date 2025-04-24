@@ -435,7 +435,7 @@
             android:text="App Version: 1.0.0"
             android:textColor="@color/textSecondary"
             android:textSize="12sp"
-            app:layout_constraintTop_toBottomOf="@id/cardBackup" />
+            app:layout_constraintTop_toBottomOf="@id/cardSecurity" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

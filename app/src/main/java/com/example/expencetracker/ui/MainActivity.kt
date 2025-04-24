@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.example.expencetracker.R
 import com.example.expencetracker.data.PrefsManager
+import com.example.expencetracker.ui.fragments.AnalyticsFragment
 import com.example.expencetracker.ui.fragments.BudgetFragment
 import com.example.expencetracker.ui.fragments.HomeFragment
 import com.example.expencetracker.ui.fragments.SettingsFragment
@@ -64,6 +65,10 @@ class MainActivity : AppCompatActivity() {
                     loadFragment(TransactionFragment())
                     true
                 }
+                R.id.nav_analytics -> {
+                    loadFragment(AnalyticsFragment())
+                    true
+                }
                 R.id.nav_budget -> {
                     loadFragment(BudgetFragment())
                     true
@@ -79,6 +84,7 @@ class MainActivity : AppCompatActivity() {
         // Initialize with the correct fragment based on saved or current state
         val initialFragment = when (selectedNavItemId) {
             R.id.nav_transactions -> TransactionFragment()
+            R.id.nav_analytics -> AnalyticsFragment()
             R.id.nav_budget -> BudgetFragment()
             R.id.nav_settings -> SettingsFragment()
             else -> HomeFragment()

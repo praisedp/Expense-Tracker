@@ -207,7 +207,6 @@
                     android:textColor="@color/textPrimary"
                     android:textStyle="bold" />
 
-
             </LinearLayout>
 
             <com.github.mikephil.charting.charts.PieChart
@@ -242,7 +241,6 @@
                     android:textColor="@color/textPrimary"
                     android:textStyle="bold" />
 
-
             </LinearLayout>
 
             <com.github.mikephil.charting.charts.PieChart
@@ -265,6 +263,5 @@
                 android:layout_height="96dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
 
 </FrameLayout>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base gradient background -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="135"
+                android:centerColor="#EFE6D1"
+                android:endColor="#F9F7F1"
+                android:startColor="#E7D585"
+                android:type="linear" />
+        </shape>
+    </item>
+    
+    <!-- Subtle pattern overlay for texture -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:centerX="0.6"
+                android:centerY="0.4"
+                android:gradientRadius="500dp"
+                android:endColor="#00FFFFFF"
+                android:startColor="#33D4AF37"
+                android:type="radial" />
+        </shape>
+    </item>
+    
+    <!-- Elegant corner accent -->
+    <item android:gravity="top|right">
+        <shape android:shape="rectangle">
+            <size android:width="150dp" android:height="150dp" />
+            <gradient
+                android:centerX="0.9"
+                android:centerY="0.1"
+                android:gradientRadius="150dp"
+                android:endColor="#00FFFFFF"
+                android:startColor="#33FFD700"
+                android:type="radial" />
+        </shape>
+    </item>
+    
+    <!-- Bottom left accent -->
+    <item android:gravity="bottom|left">
+        <shape android:shape="rectangle">
+            <size android:width="120dp" android:height="120dp" />
+            <gradient
+                android:centerX="0.1"
+                android:centerY="0.9"
+                android:gradientRadius="120dp"
+                android:endColor="#00FFFFFF"
+                android:startColor="#33CD7F32"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list> 

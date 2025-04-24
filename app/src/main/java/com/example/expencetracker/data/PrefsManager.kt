@@ -18,6 +18,10 @@ object PrefsManager {
     private const val KEY_PIN_HASH = "pin_hash"
     private const val KEY_PIN_ENABLED = "pin_enabled"
     private const val KEY_SESSION_UNLOCKED = "session_unlocked"
+    
+    // Onboarding related keys
+    private const val KEY_ONBOARDING_SEEN = "onboarding_seen"
+    private const val KEY_FORCE_ONBOARDING = "force_onboarding"
 
     private lateinit var prefs: SharedPreferences
     private val gson = Gson()
@@ -30,6 +34,48 @@ object PrefsManager {
         prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         // Reset session unlock status on app initialization
         isSessionUnlocked = false
+    }
+    
+    // ───────── Onboarding Methods ─────────────────────────────────────
+    
+    /**
+     * Set whether the user has seen the onboarding screens
+     * @param seen true if the user has seen the onboarding
+     */
+    fun setOnboardingSeen(seen: Boolean) {
+        prefs.edit().putBoolean(KEY_ONBOARDING_SEEN, seen).apply()
+    }
+    
+    /**
+     * Check if the user has seen the onboarding screens
+     * @return true if the user has seen the onboarding
+     */
+    fun hasSeenOnboarding(): Boolean {
+        return prefs.getBoolean(KEY_ONBOARDING_SEEN, false)
+    }
+    
+    /**
+     * Set whether to force showing the onboarding screens
+     * @param force true to force showing the onboarding
+     */
+    fun setForceOnboarding(force: Boolean) {
+        prefs.edit().putBoolean(KEY_FORCE_ONBOARDING, force).apply()
+    }
+    
+    /**
+     * Check if the onboarding should be forcibly shown
+     * @return true if the onboarding should be forcibly shown
+     */
+    fun shouldForceOnboarding(): Boolean {
+        return prefs.getBoolean(KEY_FORCE_ONBOARDING, true)
+    }
+    
+    /**
+     * Check if the onboarding should be shown
+     * @return true if the onboarding should be shown
+     */
+    fun shouldShowOnboarding(): Boolean {
+        return shouldForceOnboarding() || !hasSeenOnboarding()
     }
     
     // ───────── PIN Lock Methods ────────────────────────────────────────
