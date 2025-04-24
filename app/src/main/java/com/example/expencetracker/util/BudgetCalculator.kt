@@ -5,7 +5,7 @@ import com.example.expencetracker.data.TxType
 import java.util.*
 
 /**
- * Helper functions for “this‑month” budget calculations.
+ * Helper functions for "this‑month" budget calculations.
  *
  * All amounts returned are **expenses only** (TxType.EXPENSE).
  */
@@ -36,10 +36,10 @@ object BudgetCalculator {
 
     /** Sum of expense amounts for the list supplied (already filtered). */
     fun spentTotal(monthTx: List<Transaction>): Double =
-        monthTx.sumOf { it.amount }
+        monthTx.sumOf { Math.abs(it.amount) }
 
-    /** Map category → amount spent (for the list supplied). */
+    /** Map category → amount spent (for the list supplied). */
     fun spentByCategory(monthTx: List<Transaction>): Map<String, Double> =
         monthTx.groupBy { it.category }
-            .mapValues { entry -> entry.value.sumOf { it.amount } }
+            .mapValues { entry -> entry.value.sumOf { Math.abs(it.amount) } }
 }

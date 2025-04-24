@@ -12,11 +12,13 @@
     <color name="colorIncome">#388E3C</color>        <!-- Emerald  -->
     <color name="colorIncomeDark">#2E7D32</color>    <!-- Darker Emerald  -->
     <color name="colorIncomeLight">#A5D6A7</color>   <!-- Light Emerald  -->
+    <color name="colorIncomeFaded">#15388E3C</color> <!-- Faded Emerald for unselected bubbles -->
 
     <!-- Error / Expense -->
     <color name="colorExpense">#D32F2F</color>       <!-- Crimson Alert  -->
     <color name="colorExpenseDark">#B71C1C</color>   <!-- Darker Crimson  -->
     <color name="colorExpenseLight">#EF9A9A</color>  <!-- Light Crimson  -->
+    <color name="colorExpenseFaded">#15D32F2F</color><!-- Faded Crimson for unselected bubbles -->
 
     <!-- Surface & Background -->
     <color name="colorBackground">#F9F7F1</color>    <!-- Ivory  -->
@@ -26,6 +28,7 @@
     <color name="textPrimary">#333333</color>        <!-- Midnight Text -->
     <color name="textSecondary">#555555</color>      <!-- Slate Gray -->
     <color name="textHint">#B0A79D</color>           <!-- Stone -->
+    <color name="black">#000000</color>              <!-- Pure Black -->
 
     <!-- Alerts & Info -->
     <color name="colorWarning">#FFA000</color>       <!-- Amber Alert  -->

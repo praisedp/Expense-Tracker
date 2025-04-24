@@ -106,6 +106,13 @@ class TransactionAdapter(
         updateData(newTransactions)
     }
 
+    /**
+     * Returns the current list of transactions being displayed
+     */
+    fun getCurrentList(): List<Transaction> {
+        return transactions
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_transaction, parent, false)

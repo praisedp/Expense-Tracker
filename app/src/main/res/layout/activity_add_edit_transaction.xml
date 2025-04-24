@@ -164,23 +164,16 @@
                         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
                         android:textColor="@color/textPrimary" />
 
-                    <!-- Spinner with custom styling -->
-                    <FrameLayout
+                    <!-- Replace spinner with RecyclerView for category bubbles -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvCategoryBubbles"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
-                        android:background="@drawable/spinner_background">
-
-                        <Spinner
-                            android:id="@+id/spinnerCategory"
-                            android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:backgroundTint="@android:color/transparent"
-                            android:dropDownWidth="match_parent"
-                            android:popupBackground="@color/colorSurface"
-                            android:prompt="@string/select_category"
-                            android:spinnerMode="dropdown" />
-                    </FrameLayout>
+                        android:clipToPadding="false"
+                        android:fadeScrollbars="true"
+                        android:paddingVertical="4dp"
+                        android:scrollbars="none" />
 
                     <!-- Date Section -->
                     <TextView

@@ -15,6 +15,7 @@ import com.example.expencetracker.data.CategoryRow          // ← data class yo
 import com.example.expencetracker.data.PrefsManager
 import com.example.expencetracker.data.TxType
 import com.example.expencetracker.databinding.FragmentHomeBinding
+import com.example.expencetracker.ui.AddEditTransactionActivity
 import com.example.expencetracker.util.DateUtils
 import com.example.expencetracker.util.TransactionFilter
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -72,6 +73,9 @@ class HomeFragment : Fragment() {
         refreshDashboard()
         setupChartDefaults(binding.pieExpense)
         setupChartDefaults(binding.pieIncome)
+        
+        // Setup the FAB
+        setupFloatingActionButton()
     }
 
     override fun onResume() {
@@ -137,7 +141,8 @@ class HomeFragment : Fragment() {
 
         // Totals
         val totalIncome  = list.filter { it.type == TxType.INCOME  }.sumOf { it.amount }
-        val totalExpense = list.filter { it.type == TxType.EXPENSE }.sumOf { it.amount }
+        // Use absolute value for expenses since they're stored as negative values
+        val totalExpense = list.filter { it.type == TxType.EXPENSE }.sumOf { Math.abs(it.amount) }
         val balance      = totalIncome - totalExpense
 
         val moneyFmt = CurrencyFormatter.numberFormat()
@@ -148,7 +153,7 @@ class HomeFragment : Fragment() {
         // Category splits
         val expByCat = list.filter { it.type == TxType.EXPENSE }
             .groupBy { it.category }
-            .mapValues { it.value.sumOf { tx -> tx.amount } }
+            .mapValues { it.value.sumOf { tx -> Math.abs(tx.amount) } }
         val incByCat = list.filter { it.type == TxType.INCOME }
             .groupBy { it.category }
             .mapValues { it.value.sumOf { tx -> tx.amount } }
@@ -368,6 +373,13 @@ class HomeFragment : Fragment() {
         
         binding.pieIncome.centerText = spannableText
         binding.pieIncome.invalidate()
+    }
+
+    // ─── Set up Floating Action Button ────────────────────────────
+    private fun setupFloatingActionButton() {
+        binding.fabAddTransaction.setOnClickListener {
+            startActivity(AddEditTransactionActivity.createIntent(requireContext()))
+        }
     }
 }
 

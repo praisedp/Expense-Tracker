@@ -6,8 +6,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import com.example.expencetracker.R
@@ -26,6 +29,7 @@ class OnboardingActivity : AppCompatActivity() {
     private var pin: String = ""
     private var selectedCurrency: String = "USD"
     private var currencyAdapter: CurrencyAdapter? = null
+    private lateinit var dots: Array<ImageView>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,11 +49,15 @@ class OnboardingActivity : AppCompatActivity() {
         adapter = OnboardingViewPagerAdapter(this)
         binding.viewPager.adapter = adapter
         
+        // Setup dot indicators
+        setupDotIndicators()
+        
         binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
                 updateButtonVisibility(position)
+                updateDotIndicators(position)
                 
                 // Setup currency slide (slide 3) when it becomes visible
                 if (position == 2) {
@@ -69,6 +77,49 @@ class OnboardingActivity : AppCompatActivity() {
 
             override fun onPageScrollStateChanged(state: Int) {}
         })
+    }
+
+    private fun setupDotIndicators() {
+        dots = Array(adapter.count) { ImageView(this) }
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(8, 0, 8, 0)
+        }
+
+        // Add dot indicators
+        for (i in dots.indices) {
+            dots[i] = ImageView(this)
+            dots[i].setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    R.drawable.dot_indicator_default
+                )
+            )
+            binding.dotsIndicator.addView(dots[i], params)
+        }
+
+        // Set the first dot as selected
+        if (dots.isNotEmpty()) {
+            dots[0].setImageDrawable(
+                ContextCompat.getDrawable(
+                    this, 
+                    R.drawable.dot_indicator_selected
+                )
+            )
+        }
+    }
+
+    private fun updateDotIndicators(position: Int) {
+        for (i in dots.indices) {
+            dots[i].setImageDrawable(
+                ContextCompat.getDrawable(
+                    this,
+                    if (i == position) R.drawable.dot_indicator_selected else R.drawable.dot_indicator_default
+                )
+            )
+        }
     }
 
     private fun setupButtons() {

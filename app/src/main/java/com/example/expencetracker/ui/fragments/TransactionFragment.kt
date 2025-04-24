@@ -102,26 +102,52 @@ class TransactionFragment : Fragment() {
             override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
 
             override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
-                // 1. Capture the deleted transaction and its position
-                val pos = vh.adapterPosition
-                val deletedTx = allTransactions[pos]
-
-                // 2. Remove from SharedPreferences and UI
-                PrefsManager.deleteTransaction(deletedTx.id)
-                adapter.updateData(PrefsManager.loadTransactions())
-
-                // 3. Show Snackbar with UNDO
-                Snackbar.make(recyclerView, "Transaction deleted", 3000)
-                    .setAction("UNDO") {
-                        // Restore in SharedPreferences
-                        val restoredList = PrefsManager.loadTransactions().toMutableList()
-                        restoredList.add(pos, deletedTx)
-                        PrefsManager.saveTransactions(restoredList)
-                        // Refresh UI
-                        allTransactions = restoredList
-                        adapter.updateData(allTransactions)
+                try {
+                    // 1. Capture the deleted transaction and its position
+                    val pos = vh.adapterPosition
+                    val currentDisplayedList = adapter.getCurrentList()
+                    
+                    // Check if position is valid
+                    if (pos < 0 || pos >= currentDisplayedList.size) {
+                        // Invalid position, reload the list to reset the UI
+                        applyFilters()
+                        return
                     }
-                    .show()
+                    
+                    val deletedTx = currentDisplayedList[pos]
+    
+                    // 2. Remove from SharedPreferences
+                    if (PrefsManager.deleteTransaction(deletedTx.id)) {
+                        // 3. Reload all transactions from SharedPreferences
+                        allTransactions = PrefsManager.loadTransactions()
+                            .sortedByDescending { it.date }
+                        
+                        // 4. Re-apply the current filters to update the UI
+                        applyFilters()
+        
+                        // 5. Show Snackbar with UNDO
+                        Snackbar.make(recyclerView, "Transaction deleted", 3000)
+                            .setAction("UNDO") {
+                                // Restore in SharedPreferences
+                                val restoredList = PrefsManager.loadTransactions().toMutableList()
+                                restoredList.add(deletedTx)
+                                PrefsManager.saveTransactions(restoredList)
+                                
+                                // Reload transactions and re-apply filters
+                                allTransactions = PrefsManager.loadTransactions()
+                                    .sortedByDescending { it.date }
+                                applyFilters()
+                            }
+                            .show()
+                    } else {
+                        // If deletion failed, just refresh the UI
+                        applyFilters()
+                    }
+                } catch (e: Exception) {
+                    // If any exception occurs, log it and refresh the UI
+                    android.util.Log.e("TransactionFragment", "Error in swipe deletion: ${e.message}")
+                    applyFilters()
+                }
             }
 
             override fun onChildDraw(

@@ -523,7 +523,7 @@ class AnalyticsFragment : Fragment() {
             
             // Calculate income and expense totals
             val income = monthTransactions.filter { it.type == TxType.INCOME }.sumOf { it.amount }
-            val expense = monthTransactions.filter { it.type == TxType.EXPENSE }.sumOf { it.amount }
+            val expense = monthTransactions.filter { it.type == TxType.EXPENSE }.sumOf { Math.abs(it.amount) }
             
             // Format month label
             val monthLabel = monthFormat.format(Date(monthStart))
@@ -677,7 +677,7 @@ class AnalyticsFragment : Fragment() {
             
             // Calculate income and expense totals
             val income = weekTransactions.filter { it.type == TxType.INCOME }.sumOf { it.amount }
-            val expense = weekTransactions.filter { it.type == TxType.EXPENSE }.sumOf { it.amount }
+            val expense = weekTransactions.filter { it.type == TxType.EXPENSE }.sumOf { Math.abs(it.amount) }
             
             // Format week label
             val weekLabel = weekFormat.format(Date(weekStart))
@@ -836,11 +836,11 @@ class AnalyticsFragment : Fragment() {
         // Calculate expenses for current and previous month
         val currentExpense = allTransactions
             .filter { it.type == TxType.EXPENSE && it.date in currentStart..currentEnd }
-            .sumOf { it.amount }
+            .sumOf { Math.abs(it.amount) }
         
         val previousExpense = allTransactions
             .filter { it.type == TxType.EXPENSE && it.date in previousStart..previousEnd }
-            .sumOf { it.amount }
+            .sumOf { Math.abs(it.amount) }
         
         // Get previous month name for display
         val previousMonthName = SimpleDateFormat("MMM", Locale.getDefault()).format(Date(previousStart))
@@ -943,7 +943,7 @@ class AnalyticsFragment : Fragment() {
                     tx.date in start..end && 
                     (tx.category == category || tx.category.endsWith(name))
                 }
-                .sumOf { it.amount }
+                .sumOf { Math.abs(it.amount) }
         }
         
         val primarySum = sumForCategory(primaryCategory, startOfMonth, endOfMonth)

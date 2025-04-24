@@ -6,9 +6,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.RecyclerView
 import com.example.expencetracker.R
+import com.example.expencetracker.adapter.CategoryBubbleAdapter
 import com.example.expencetracker.data.*
 import com.example.expencetracker.util.BudgetAlertManager
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.flexbox.JustifyContent
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,13 +22,15 @@ class AddEditTransactionActivity : AppCompatActivity() {
     private lateinit var rgTxType: RadioGroup
     private lateinit var etTitle: EditText
     private lateinit var etAmount: EditText
-    private lateinit var spinnerCategory: Spinner
+    private lateinit var rvCategoryBubbles: RecyclerView
     private lateinit var tvDate: TextView
     private lateinit var btnSave: Button
     private lateinit var btnCancel: Button
 
     private var selectedDate: Long = System.currentTimeMillis()
     private var editingTxId: Long? = null        // null = add‑mode, else edit‑mode
+    private var selectedCategory: String? = null // Track the selected category
+    private lateinit var categoryAdapter: CategoryBubbleAdapter
 
     // ─── life‑cycle ────────────────────────────────────────────────────
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,11 +41,12 @@ class AddEditTransactionActivity : AppCompatActivity() {
         configureDatePicker()
         configureButtons()
         configureTypeRadioListener()
+        setupCategoryRecyclerView()  // New method to set up RecyclerView
 
         // If launched for EDIT, pre‑populate fields
         editingTxId = intent.getLongExtra(EXTRA_TX_ID, -1L).takeIf { it != -1L }
         editingTxId?.let { prefillFields(it) }       // switch to edit‑mode
-        updateCategorySpinner()                      // build spinner
+        updateCategoryBubbles()                      // build category list
     }
 
     // ─── view helpers ──────────────────────────────────────────────────
@@ -46,7 +54,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
         rgTxType = findViewById(R.id.rgTxType)
         etTitle  = findViewById(R.id.etTitle)
         etAmount = findViewById(R.id.etAmount)
-        spinnerCategory = findViewById(R.id.spinnerCategory)
+        rvCategoryBubbles = findViewById(R.id.rvCategoryBubbles)
         tvDate   = findViewById(R.id.tvDate)
         btnSave  = findViewById(R.id.btnSave)
         btnCancel= findViewById(R.id.btnCancel)
@@ -70,7 +78,23 @@ class AddEditTransactionActivity : AppCompatActivity() {
     }
 
     private fun configureTypeRadioListener() =
-        rgTxType.setOnCheckedChangeListener { _, _ -> updateCategorySpinner() }
+        rgTxType.setOnCheckedChangeListener { _, _ -> updateCategoryBubbles() }
+
+    private fun setupCategoryRecyclerView() {
+        // Configure FlexboxLayoutManager programmatically for better control
+        val layoutManager = FlexboxLayoutManager(this).apply {
+            flexDirection = FlexDirection.ROW
+            justifyContent = JustifyContent.FLEX_START
+        }
+        
+        rvCategoryBubbles.layoutManager = layoutManager
+        
+        // Initialize adapter with empty list, will be populated later
+        categoryAdapter = CategoryBubbleAdapter(emptyList()) { category ->
+            selectedCategory = category  // Store selected category
+        }
+        rvCategoryBubbles.adapter = categoryAdapter
+    }
 
     // ─── edit‑mode prefill ─────────────────────────────────────────────
     private fun prefillFields(txId: Long) {
@@ -82,25 +106,22 @@ class AddEditTransactionActivity : AppCompatActivity() {
 
         if (tx.type == TxType.INCOME) rgTxType.check(R.id.rbIncome) else rgTxType.check(R.id.rbExpense)
 
-        // Category spinner selection will be handled after spinner is populated
-        // We store category text so we can select it later
-        spinnerCategory.tag = tx.category
+        // Store the category text to select it after adapter is populated
+        selectedCategory = tx.category
     }
 
-    // ─── spinner population ───────────────────────────────────────────
-    private fun updateCategorySpinner() {
+    // ─── category population ───────────────────────────────────────────
+    private fun updateCategoryBubbles() {
         val saved = PrefsManager.loadCategories()
-        val type  = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
-        val list  = saved.filter { it.type == type }
-        val display = list.map { "${it.emoji} ${it.name}" }
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, display)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCategory.adapter = adapter
-
+        val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
+        val filteredCategories = saved.filter { it.type == type }
+        
+        // Update adapter with filtered categories
+        categoryAdapter.updateCategories(filteredCategories)
+        
         // If we're editing, select the original category
-        (spinnerCategory.tag as? String)?.let { orig ->
-            val idx = display.indexOfFirst { it.endsWith(orig) }
-            if (idx >= 0) spinnerCategory.setSelection(idx)
+        selectedCategory?.let { originalCategory ->
+            categoryAdapter.selectCategory(originalCategory)
         }
     }
 
@@ -111,12 +132,14 @@ class AddEditTransactionActivity : AppCompatActivity() {
         try {
             val title = etTitle.text.toString().trim()
             val amount = etAmount.text.toString().toDouble()
-            val categoryText = spinnerCategory.selectedItem.toString()
             
-            // Save the full category text including the emoji
-            val category = categoryText
+            // Use the selected category from the adapter
+            val category = selectedCategory ?: throw IllegalStateException("No category selected")
             
             val type = if (rgTxType.checkedRadioButtonId == R.id.rbIncome) TxType.INCOME else TxType.EXPENSE
+            
+            // Convert amount to positive or negative based on type
+            val adjustedAmount = if (type == TxType.INCOME) Math.abs(amount) else -Math.abs(amount)
     
             val list = PrefsManager.loadTransactions().toMutableList()
     
@@ -126,7 +149,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
                     Transaction(
                         id = System.currentTimeMillis(),
                         title = title,
-                        amount = amount,
+                        amount = adjustedAmount,
                         category = category,
                         type = type,
                         date = selectedDate
@@ -138,7 +161,7 @@ class AddEditTransactionActivity : AppCompatActivity() {
                 if (index != -1) {
                     list[index] = list[index].copy(
                         title = title,
-                        amount = amount,
+                        amount = adjustedAmount,
                         category = category,
                         type = type,
                         date = selectedDate
@@ -202,8 +225,8 @@ class AddEditTransactionActivity : AppCompatActivity() {
         }
 
         // Validate category is selected
-        if (spinnerCategory.adapter == null || spinnerCategory.adapter.count == 0) {
-            Toast.makeText(this, "Please add categories first", Toast.LENGTH_SHORT).show()
+        if (selectedCategory == null) {
+            Toast.makeText(this, "Please select a category", Toast.LENGTH_SHORT).show()
             isValid = false
         }
 

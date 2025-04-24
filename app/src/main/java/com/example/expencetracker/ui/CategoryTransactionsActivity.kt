@@ -73,21 +73,22 @@ class CategoryTransactionsActivity : AppCompatActivity() {
     }
     
     private fun calculateAndDisplayTotal(transactions: List<Transaction>) {
-        // Sum all expenses (negative) and income (positive) for this category
+        // Sum all expenses (use abs for negative values) and income (positive)
         val total = transactions.sumOf { 
-            if (it.type == TxType.EXPENSE) -it.amount else it.amount 
+            if (it.type == TxType.EXPENSE) Math.abs(it.amount) else it.amount 
         }
         
         // Format the total with the currency symbol
         val formattedTotal = CurrencyFormatter.format(total)
         
-        // Apply color based on whether it's positive or negative
+        // Apply color based on transaction type (income is green, expense is red)
+        val isExpenseCategory = transactions.any { it.type == TxType.EXPENSE }
         tvCategoryTotal.text = formattedTotal
         tvCategoryTotal.setTextColor(
-            if (total >= 0) 
-                resources.getColor(R.color.colorIncome, theme)
-            else 
+            if (isExpenseCategory) 
                 resources.getColor(R.color.colorExpense, theme)
+            else 
+                resources.getColor(R.color.colorIncome, theme)
         )
     }
 }
