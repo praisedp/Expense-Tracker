@@ -7,9 +7,13 @@
     android:background="@color/colorBackground">
 
     <LinearLayout
+        android:id="@+id/transactionMainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         tools:context=".ui.fragments.TransactionFragment">
 
         <!-- Title -->
@@ -26,6 +30,30 @@
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
+
+        <!-- Search Bar -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/svSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:iconifiedByDefault="false"
+                android:queryHint="Search by name, category, date, amount..."
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                app:queryBackground="@null"
+                app:iconifiedByDefault="false"
+                app:closeIcon="@drawable/ic_clear"
+                app:searchIcon="@drawable/ic_search"/>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Card container for tabs to add elevation and rounded corners -->
         <androidx.cardview.widget.CardView

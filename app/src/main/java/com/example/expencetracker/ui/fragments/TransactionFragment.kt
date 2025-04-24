@@ -3,36 +3,54 @@ package com.example.expencetracker.ui.fragments
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.fragment.app.Fragment
-import com.google.android.material.tabs.TabLayout
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.expencetracker.R
-import com.example.expencetracker.data.TxType
-import com.example.expencetracker.data.Transaction
-import com.example.expencetracker.adapter.TransactionAdapter
-import com.example.expencetracker.data.PrefsManager
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.view.Window
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
-import com.google.android.material.snackbar.Snackbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.expencetracker.R
+import com.example.expencetracker.adapter.TransactionAdapter
+import com.example.expencetracker.data.PrefsManager
+import com.example.expencetracker.data.Transaction
+import com.example.expencetracker.data.TxType
 import com.example.expencetracker.ui.AddEditTransactionActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import kotlin.math.abs
+import kotlin.math.min
 
 class TransactionFragment : Fragment() {
 
     private lateinit var tabLayout: TabLayout
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: TransactionAdapter
+    private lateinit var searchView: SearchView
     private var allTransactions: List<Transaction> = emptyList()
+    private var currentFilterType: TxType? = null
+    private var currentSearchQuery: String = ""
+    private var searchJob: Job? = null
+    private val searchHandler = Handler(Looper.getMainLooper())
+    private var searchRunnable: Runnable? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +60,22 @@ class TransactionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         tabLayout = view.findViewById(R.id.tabLayout)
         recyclerView = view.findViewById(R.id.rvTransactions)
+        searchView = view.findViewById(R.id.svSearch)
         recyclerView.layoutManager = LinearLayoutManager(context)
+        
+        // Setup focus management with the main layout
+        val mainLayout = view.findViewById<View>(R.id.transactionMainLayout)
+        mainLayout.setOnClickListener {
+            clearSearchViewFocus()
+        }
+        
+        // Setup touch listener on recyclerView to clear focus
+        recyclerView.setOnTouchListener { _, _ ->
+            if (searchView.hasFocus()) {
+                clearSearchViewFocus()
+            }
+            false
+        }
 
         // 1. Load transactions and categories
         allTransactions = PrefsManager.loadTransactions()
@@ -55,11 +88,17 @@ class TransactionFragment : Fragment() {
         }
         recyclerView.adapter = adapter
 
+        // Set up search view
+        setupSearchView()
+
+        // Set up tabs
+        setupTabs()
+
         // Attach swipe-to-delete on full left swipe
         val deleteIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_delete)!!
-        val background = ColorDrawable(Color.parseColor("#f44336"))  // red
+        val background = android.graphics.drawable.ColorDrawable(android.graphics.Color.parseColor("#f44336"))  // red
 
-        val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
 
             override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
@@ -86,7 +125,7 @@ class TransactionFragment : Fragment() {
             }
 
             override fun onChildDraw(
-                c: Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
+                c: android.graphics.Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
                 dX: Float, dY: Float, actionState: Int, isActive: Boolean
             ) {
                 val itemView = vh.itemView
@@ -110,32 +149,62 @@ class TransactionFragment : Fragment() {
 
                 super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive)
             }
-        }
-        ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerView)
+        })
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        // Find and configure the '+' FAB
-        val fabAdd = view.findViewById<FloatingActionButton>(R.id.fabAddTransaction)
-        fabAdd.setOnClickListener {
-            startActivity(
-                AddEditTransactionActivity.createIntent(requireContext(), null /* no id for new */)
-            )
+        // Set up FAB
+        view.findViewById<FloatingActionButton>(R.id.fabAddTransaction).setOnClickListener {
+            startActivity(AddEditTransactionActivity.createIntent(requireContext()))
         }
-
-        setupTabs()
     }
 
-    private fun filter(type: TxType?) {
-        val filtered = if (type == null) {
-            allTransactions
-        } else {
-            allTransactions.filter { it.type == type }
-        }
-        adapter.updateData(
-            filtered.sortedByDescending { it.date }
-        )
+    private fun setupSearchView() {
+        // Set query hint programmatically
+        searchView.queryHint = "Search by name, category, date, amount..."
+        
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { performSearch(it) }
+                clearSearchViewFocus()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Cancel previous search job if it exists
+                searchJob?.cancel()
+                searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+                // Debounce search to avoid excessive filtering
+                searchRunnable = Runnable {
+                    newText?.let { 
+                        lifecycleScope.launch {
+                            performSearch(it) 
+                        }
+                    }
+                }
+                
+                searchHandler.postDelayed(searchRunnable!!, 300)
+                return true
+            }
+        })
     }
 
-    // Custom tab setup as provided by AI designer
+    /**
+     * Helper method to clear focus from search view and hide keyboard
+     */
+    private fun clearSearchViewFocus() {
+        if (searchView.hasFocus()) {
+            searchView.clearFocus()
+            val imm = requireActivity().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.hideSoftInputFromWindow(searchView.windowToken, 0)
+        }
+    }
+
+    private fun performSearch(query: String) {
+        currentSearchQuery = query.trim()
+        applyFilters()
+    }
+
     private fun setupTabs() {
         // Clear existing tabs
         tabLayout.removeAllTabs()
@@ -174,7 +243,180 @@ class TransactionFragment : Fragment() {
     private fun loadTransactions() {
         allTransactions = PrefsManager.loadTransactions()
             .sortedByDescending { it.date }
-        filter(tabLayout.selectedTabPosition.let { if (it == 1) TxType.INCOME else if (it == 2) TxType.EXPENSE else null })
+        applyFilters()
+    }
+    
+    private fun filter(type: TxType?) {
+        currentFilterType = type
+        applyFilters()
+    }
+    
+    private fun applyFilters() {
+        val query = currentSearchQuery
+        val type = currentFilterType
+        
+        // If both query and type filter are empty, show all transactions
+        if (query.isEmpty() && type == null) {
+            adapter.updateTransactions(allTransactions)
+            return
+        }
+        
+        lifecycleScope.launch(Dispatchers.Default) {
+            val filteredTransactions = if (query.isEmpty()) {
+                // Only filter by type
+                allTransactions.filter { type == null || it.type == type }
+            } else {
+                // Apply smart search with type filter
+                filterTransactions(query).filter { type == null || it.type == type }
+            }
+            
+            withContext(Dispatchers.Main) {
+                adapter.updateTransactions(filteredTransactions)
+            }
+        }
+    }
+    
+    /**
+     * Smart search function that filters transactions by various criteria
+     */
+    private fun filterTransactions(query: String): List<Transaction> {
+        // If query is empty, return all transactions
+        if (query.isBlank()) {
+            return allTransactions
+        }
+
+        val normalizedQuery = query.lowercase().trim()
+        
+        return allTransactions.filter { transaction ->
+            // 1. Title match
+            if (transaction.title.lowercase().contains(normalizedQuery)) {
+                return@filter true
+            }
+            
+            // 2. Category match
+            if (transaction.category.lowercase().contains(normalizedQuery)) {
+                return@filter true
+            }
+            
+            // 3. Amount match - try to parse the query as a number
+            try {
+                val queryAmount = normalizedQuery.replace(",", ".").toDoubleOrNull()
+                if (queryAmount != null && abs(abs(transaction.amount) - abs(queryAmount)) < 0.01) {
+                    return@filter true
+                }
+                
+                // Also check if the formatted amount contains the query
+                val formattedAmount = String.format(Locale.getDefault(), "%.2f", abs(transaction.amount))
+                if (formattedAmount.contains(normalizedQuery) || 
+                    formattedAmount.replace(".", ",").contains(normalizedQuery)) {
+                    return@filter true
+                }
+            } catch (e: Exception) {
+                // Ignore parsing errors
+            }
+            
+            // 4. Date matching - try to match month names, specific dates, etc.
+            val date = Date(transaction.date)
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val formattedDate = dateFormat.format(date)
+            
+            if (formattedDate.lowercase().contains(normalizedQuery)) {
+                return@filter true
+            }
+            
+            // Match by month name
+            val monthFormat = SimpleDateFormat("MMMM", Locale.getDefault())
+            val month = monthFormat.format(date).lowercase()
+            if (month.contains(normalizedQuery) || normalizedQuery.contains(month)) {
+                return@filter true
+            }
+            
+            // Match by month + day (e.g., "April 15")
+            val monthDayFormat = SimpleDateFormat("MMMM d", Locale.getDefault())
+            val monthDay = monthDayFormat.format(date).lowercase()
+            if (monthDay.contains(normalizedQuery) || normalizedQuery.contains(monthDay)) {
+                return@filter true
+            }
+            
+            // Try to match partial date patterns
+            val cal = Calendar.getInstance()
+            cal.time = date
+            val dayOfMonth = cal.get(Calendar.DAY_OF_MONTH).toString()
+            if (normalizedQuery == dayOfMonth || 
+                normalizedQuery.endsWith(" $dayOfMonth") || 
+                normalizedQuery.startsWith("$dayOfMonth ")) {
+                return@filter true
+            }
+            
+            // 5. Fuzzy text matching for title and category (basic implementation)
+            if (isFuzzyMatch(transaction.title.lowercase(), normalizedQuery) || 
+                isFuzzyMatch(transaction.category.lowercase(), normalizedQuery)) {
+                return@filter true
+            }
+            
+            // No match found
+            false
+        }
+    }
+    
+    /**
+     * Basic Levenshtein distance implementation for fuzzy matching
+     */
+    private fun isFuzzyMatch(text: String, query: String): Boolean {
+        // For very short queries, require exact match to avoid false positives
+        if (query.length <= 2) {
+            return false
+        }
+        
+        // Calculate Levenshtein distance
+        val distance = calculateLevenshteinDistance(text, query)
+        
+        // Allow more typos for longer queries
+        val maxAllowedDistance = when {
+            query.length <= 3 -> 1
+            query.length <= 5 -> 2
+            else -> 3
+        }
+        
+        return distance <= maxAllowedDistance
+    }
+    
+    /**
+     * Calculate Levenshtein distance between two strings
+     */
+    private fun calculateLevenshteinDistance(s1: String, s2: String): Int {
+        // Basic implementation to handle approximate string matching
+        if (s1 == s2) return 0
+        if (s1.isEmpty()) return s2.length
+        if (s2.isEmpty()) return s1.length
+
+        // Create two work vectors
+        var v0 = IntArray(s2.length + 1) { it }
+        var v1 = IntArray(s2.length + 1)
+
+        for (i in s1.indices) {
+            // Initial value for edit distance from s2[0..j] to s1[0..i]
+            v1[0] = i + 1
+
+            for (j in s2.indices) {
+                // Calculate cost - 0 if characters match, 1 otherwise
+                val cost = if (s1[i] == s2[j]) 0 else 1
+
+                // Compute minimum of delete, insert, substitute
+                v1[j + 1] = minOf(
+                    v1[j] + 1,          // Delete
+                    v0[j + 1] + 1,      // Insert
+                    v0[j] + cost        // Substitute
+                )
+            }
+
+            // Swap arrays for next iteration
+            val temp = v0
+            v0 = v1
+            v1 = temp
+        }
+
+        return v0[s2.length]
     }
 
     private fun showDeleteTransactionDialog(transaction: Transaction) {

@@ -40,7 +40,7 @@ class TransactionAdapter(
             val symbol = getCurrencySymbol(currencyCode)
             val absAmount = String.format(Locale.getDefault(), "%.2f", abs(transaction.amount))
 
-// 3) Prepend a “-” only for expenses
+// 3) Prepend a "−" only for expenses
             val displayText = if (transaction.type == TxType.EXPENSE) {
                 "-$symbol$absAmount"
             } else {
@@ -93,6 +93,11 @@ class TransactionAdapter(
     fun updateData(newList: List<Transaction>) {
         transactions = newList
         notifyDataSetChanged()
+    }
+
+    // Update the transactions list with new data - this is an alias for updateData
+    fun updateTransactions(newTransactions: List<Transaction>) {
+        updateData(newTransactions)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
