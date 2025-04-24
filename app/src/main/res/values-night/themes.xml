@@ -1,7 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.ExpenceTracker" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryLight</item>
+        <item name="colorOnPrimary">@color/colorSurface</item>
+        <item name="colorSecondary">@color/colorIncome</item>
+        <item name="colorSecondaryContainer">@color/colorIncomeLight</item>
+        <item name="colorOnSecondary">@color/colorSurface</item>
+        <item name="colorTertiary">@color/colorExpense</item>
+        <item name="colorTertiaryContainer">@color/colorExpenseLight</item>
+        <item name="colorOnTertiary">@color/colorSurface</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorSurfaceVariant">@color/colorBackground</item>
+        <item name="colorOnSurface">@color/textPrimary</item>
+        <item name="colorOnSurfaceVariant">@color/textSecondary</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorOnBackground">@color/textPrimary</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:navigationBarColor">@color/colorBackground</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
     </style>
 </resources>

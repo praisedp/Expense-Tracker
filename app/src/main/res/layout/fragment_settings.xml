@@ -201,6 +201,71 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Dark Mode Section -->
+        <TextView
+            android:id="@+id/tvSettingsDarkModeHeader"
+            style="@style/SettingsSectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:drawableStart="@drawable/ic_dark_mode"
+            android:drawablePadding="8dp"
+            android:drawableTint="@color/colorPrimary"
+            android:text="@string/dark_mode"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/cardCurrency" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDarkMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@color/colorSurface"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/tvSettingsDarkModeHeader"
+            app:strokeColor="#E0E0E0"
+            app:strokeWidth="0.5dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:background="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dark_mode"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dark_mode_description"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchDarkMode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Backup & Restore Section -->
         <TextView
             android:id="@+id/tvSettingsBackupHeader"
@@ -214,7 +279,7 @@
             android:text="Data Backup"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/cardCurrency" />
+            app:layout_constraintTop_toBottomOf="@id/cardDarkMode" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardBackup"

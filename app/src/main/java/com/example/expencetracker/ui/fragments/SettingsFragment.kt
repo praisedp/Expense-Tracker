@@ -1,7 +1,9 @@
 package com.example.expencetracker.ui.fragments
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +17,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.expencetracker.R
@@ -35,6 +38,7 @@ import java.text.SimpleDateFormat
 import java.util.Currency
 import java.util.Date
 import java.util.Locale
+import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsFragment : Fragment() {
     private val REQUEST_CURRENCY = 101
@@ -43,6 +47,10 @@ class SettingsFragment : Fragment() {
     private lateinit var tvLastBackup: TextView
     private lateinit var switchPinLock: Switch
     private lateinit var btnChangePin: Button
+    private lateinit var switchDarkMode: SwitchMaterial
+    private val prefs: SharedPreferences by lazy {
+        requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+    }
     
     private val setPinLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -230,6 +238,27 @@ class SettingsFragment : Fragment() {
             "Last backup: ${fmt.format(Date(lastMillis))}"
         } else {
             "Last backup: never"
+        }
+
+        // Initialize dark mode switch
+        switchDarkMode = view.findViewById(R.id.switchDarkMode)
+        switchDarkMode.isChecked = prefs.getBoolean("dark_mode_enabled", false)
+        
+        switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("dark_mode_enabled", isChecked).apply()
+            
+            // Save current fragment position before recreating
+            val currentFragmentId = R.id.nav_settings
+            val activity = requireActivity()
+            
+            // Apply night mode
+            AppCompatDelegate.setDefaultNightMode(
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                else AppCompatDelegate.MODE_NIGHT_NO
+            )
+            
+            // Recreate the activity but restore settings fragment
+            activity.recreate()
         }
 
         return view

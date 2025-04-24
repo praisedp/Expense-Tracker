@@ -36,4 +36,6 @@
     <string name="budget_status_fmt">Spent: %1$s / Limit: %2$s</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="dark_mode_description">Switch between light and dark theme</string>
 </resources>
