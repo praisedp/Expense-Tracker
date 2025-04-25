@@ -306,83 +306,53 @@ class TransactionFragment : Fragment() {
      * Smart search function that filters transactions by various criteria
      */
     private fun filterTransactions(query: String): List<Transaction> {
-        // If query is empty, return all transactions
-        if (query.isBlank()) {
-            return allTransactions
-        }
+        if (query.isBlank()) return allTransactions
 
-        val normalizedQuery = query.lowercase().trim()
-        
-        return allTransactions.filter { transaction ->
-            // 1. Title match
-            if (transaction.title.lowercase().contains(normalizedQuery)) {
-                return@filter true
-            }
-            
-            // 2. Category match
-            if (transaction.category.lowercase().contains(normalizedQuery)) {
-                return@filter true
-            }
-            
-            // 3. Amount match - try to parse the query as a number
-            try {
-                val queryAmount = normalizedQuery.replace(",", ".").toDoubleOrNull()
-                if (queryAmount != null && abs(abs(transaction.amount) - abs(queryAmount)) < 0.01) {
-                    return@filter true
-                }
-                
-                // Also check if the formatted amount contains the query
-                val formattedAmount = String.format(Locale.getDefault(), "%.2f", abs(transaction.amount))
-                if (formattedAmount.contains(normalizedQuery) || 
-                    formattedAmount.replace(".", ",").contains(normalizedQuery)) {
-                    return@filter true
-                }
-            } catch (e: Exception) {
-                // Ignore parsing errors
-            }
-            
-            // 4. Date matching - try to match month names, specific dates, etc.
-            val date = Date(transaction.date)
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val formattedDate = dateFormat.format(date)
-            
-            if (formattedDate.lowercase().contains(normalizedQuery)) {
-                return@filter true
-            }
-            
-            // Match by month name
-            val monthFormat = SimpleDateFormat("MMMM", Locale.getDefault())
-            val month = monthFormat.format(date).lowercase()
-            if (month.contains(normalizedQuery) || normalizedQuery.contains(month)) {
-                return@filter true
-            }
-            
-            // Match by month + day (e.g., "April 15")
-            val monthDayFormat = SimpleDateFormat("MMMM d", Locale.getDefault())
-            val monthDay = monthDayFormat.format(date).lowercase()
-            if (monthDay.contains(normalizedQuery) || normalizedQuery.contains(monthDay)) {
-                return@filter true
-            }
-            
-            // Try to match partial date patterns
-            val cal = Calendar.getInstance()
-            cal.time = date
-            val dayOfMonth = cal.get(Calendar.DAY_OF_MONTH).toString()
-            if (normalizedQuery == dayOfMonth || 
-                normalizedQuery.endsWith(" $dayOfMonth") || 
-                normalizedQuery.startsWith("$dayOfMonth ")) {
-                return@filter true
-            }
-            
-            // 5. Fuzzy text matching for title and category (basic implementation)
-            if (isFuzzyMatch(transaction.title.lowercase(), normalizedQuery) || 
-                isFuzzyMatch(transaction.category.lowercase(), normalizedQuery)) {
-                return@filter true
-            }
-            
-            // No match found
-            false
+        // Split on whitespace to allow multi-term search (month + category, etc.)
+        val tokens = query.lowercase().trim().split("\\s+".toRegex())
+
+        return allTransactions.filter { tx ->
+            tokens.all { token -> matchToken(tx, token) }
         }
+    }
+
+    /**
+     * Returns true if a single search token matches any field of the transaction.
+     */
+    private fun matchToken(tx: Transaction, token: String): Boolean {
+        // 1. Title match
+        val title = tx.title.lowercase()
+        if (title.contains(token) || isFuzzyMatch(title, token)) return true
+
+        // 2. Category match
+        val cat = tx.category.lowercase()
+        if (cat.contains(token) || isFuzzyMatch(cat, token)) return true
+
+        // 3. Amount match
+        val amtToken = token.replace(",", ".")
+        val txAmt = abs(tx.amount)
+        amtToken.toDoubleOrNull()?.let { qAmt ->
+            if (abs(txAmt - qAmt) < 0.01) return true
+        }
+        val fmtAmt = String.format(Locale.getDefault(), "%.2f", txAmt)
+        if (fmtAmt.contains(amtToken) || fmtAmt.replace(".", ",").contains(token)) return true
+
+        // 4. Date match: full ISO, month name, day, or month+day
+        val date = Date(tx.date)
+        val iso = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date).lowercase()
+        if (iso.contains(token)) return true
+
+        val monthName = SimpleDateFormat("MMMM", Locale.getDefault()).format(date).lowercase()
+        if (monthName.startsWith(token) || token.startsWith(monthName)) return true
+
+        val monthDay = SimpleDateFormat("MMMM d", Locale.getDefault()).format(date).lowercase()
+        if (monthDay.contains(token)) return true
+
+        val day = Calendar.getInstance().apply { time = date }.get(Calendar.DAY_OF_MONTH).toString()
+        if (token == day || token.endsWith(" $day") || token.startsWith("$day ")) return true
+
+        // No match
+        return false
     }
     
     /**
