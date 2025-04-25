@@ -81,9 +81,9 @@ class BudgetFragment : Fragment() {
             progressTotal.progress = (pct * 100).toInt()
             progressTotal.progressTintList =
                 ContextCompat.getColorStateList(requireContext(), when {
-                    pct < 0.75 -> R.color.colorIncome
-                    pct <= 1   -> R.color.colorWarning
-                    else       -> R.color.colorExpense
+                    spent >= totalLimit -> R.color.colorExpense
+                    pct >= 0.75 -> R.color.colorWarning
+                    else -> R.color.colorIncome
                 })
             tvTotalStatus.text = getString(
                 R.string.budget_status_fmt,

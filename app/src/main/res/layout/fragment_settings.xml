@@ -266,6 +266,80 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Daily Reminder Section -->
+        <TextView
+            android:id="@+id/tvSettingsReminderHeader"
+            style="@style/SettingsSectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:drawableStart="@drawable/ic_settings_notification"
+            android:drawablePadding="8dp"
+            android:drawableTint="@color/colorPrimary"
+            android:text="Notifications"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/cardDarkMode" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardReminder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@color/colorSurface"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_constraintTop_toBottomOf="@id/tvSettingsReminderHeader"
+            app:strokeColor="#E0E0E0"
+            app:strokeWidth="0.5dp">
+
+            <LinearLayout
+                android:id="@+id/reminderLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Daily Expense Reminder"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Get reminded to record your expenses daily at 8:00 PM"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchDailyReminder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Backup & Restore Section -->
         <TextView
             android:id="@+id/tvSettingsBackupHeader"
@@ -279,7 +353,7 @@
             android:text="Data Backup"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/cardDarkMode" />
+            app:layout_constraintTop_toBottomOf="@id/cardReminder" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardBackup"

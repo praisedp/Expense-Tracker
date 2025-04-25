@@ -40,6 +40,15 @@ import java.util.Date
 import java.util.Locale
 import com.google.android.material.switchmaterial.SwitchMaterial
 import android.app.AlertDialog
+import com.example.expencetracker.util.DailyReminderManager
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.card.MaterialCardView
+import android.widget.LinearLayout
 
 class SettingsFragment : Fragment() {
     private val REQUEST_CURRENCY = 101
@@ -52,6 +61,7 @@ class SettingsFragment : Fragment() {
     private lateinit var btnInternalBackup: Button
     private lateinit var btnExport: Button
     private lateinit var btnRestore: Button
+    private lateinit var switchDailyReminder: SwitchMaterial
     private val prefs: SharedPreferences by lazy {
         requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     }
@@ -105,6 +115,20 @@ class SettingsFragment : Fragment() {
                 putExtra("mode", SetPinActivity.MODE_NEW_PIN) // Just set a new PIN
             }
             startActivityForResult(intent, SetPinActivity.REQUEST_CODE_CHANGE_PIN)
+        }
+    }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            // Permission granted, enable the reminder
+            DailyReminderManager.setDailyReminder(requireContext(), true)
+            switchDailyReminder.isChecked = true
+        } else {
+            // Permission denied, keep switch off
+            switchDailyReminder.isChecked = false
+            Toast.makeText(context, "Notification permission is required for daily reminders", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -296,6 +320,36 @@ class SettingsFragment : Fragment() {
             
             // Recreate the activity but restore settings fragment
             activity.recreate()
+        }
+
+        // Initialize daily reminder switch
+        switchDailyReminder = view.findViewById(R.id.switchDailyReminder)
+        switchDailyReminder.isChecked = PrefsManager.isDailyReminderEnabled()
+        
+        switchDailyReminder.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED -> {
+                            // Permission already granted
+                            DailyReminderManager.setDailyReminder(requireContext(), true)
+                        }
+                        shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                            showNotificationPermissionDialog()
+                        }
+                        else -> {
+                            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+                } else {
+                    DailyReminderManager.setDailyReminder(requireContext(), true)
+                }
+            } else {
+                DailyReminderManager.setDailyReminder(requireContext(), false)
+            }
         }
 
         return view
@@ -512,5 +566,18 @@ class SettingsFragment : Fragment() {
             type = "application/json"
         }
         openBackupPicker.launch(intent)
+    }
+
+    private fun showNotificationPermissionDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Notification Permission Required")
+            .setMessage("To show daily expense reminders, we need permission to send notifications.")
+            .setPositiveButton("Grant Permission") { _, _ ->
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            .setNegativeButton("Cancel") { _, _ ->
+                switchDailyReminder.isChecked = false
+            }
+            .show()
     }
 }

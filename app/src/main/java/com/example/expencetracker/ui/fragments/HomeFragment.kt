@@ -150,9 +150,9 @@ class HomeFragment : Fragment() {
             val pct = (spent / totalLimit).coerceIn(0.0, 1.0)
             progTotal.progress = (pct * 100).toInt()
             progTotal.progressTintList = ContextCompat.getColorStateList(requireContext(), when {
-                pct < 0.75 -> R.color.colorIncome
-                pct <= 1   -> R.color.colorWarning
-                else       -> R.color.colorExpense
+                spent >= totalLimit -> R.color.colorExpense
+                pct >= 0.75 -> R.color.colorWarning
+                else -> R.color.colorIncome
             })
             val fmt = NumberFormat.getCurrencyInstance().apply {
                 currency = java.util.Currency.getInstance(PrefsManager.getCurrency())

@@ -23,6 +23,8 @@ object PrefsManager {
     private const val KEY_ONBOARDING_SEEN = "onboarding_seen"
     private const val KEY_FORCE_ONBOARDING = "force_onboarding"
 
+    private const val KEY_DAILY_REMINDER = "daily_reminder_enabled"
+
     private lateinit var prefs: SharedPreferences
     private val gson = Gson()
     
@@ -306,5 +308,13 @@ object PrefsManager {
         val json = prefs.getString(KEY_BUDGET_CATS, null) ?: return emptyList()
         val type = object : com.google.gson.reflect.TypeToken<List<CategoryBudget>>() {}.type
         return gson.fromJson(json, type)
+    }
+
+    fun setDailyReminderEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_DAILY_REMINDER, enabled).apply()
+    }
+    
+    fun isDailyReminderEnabled(): Boolean {
+        return prefs.getBoolean(KEY_DAILY_REMINDER, false)
     }
 }
