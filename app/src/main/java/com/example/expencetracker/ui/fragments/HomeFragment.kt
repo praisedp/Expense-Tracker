@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
+import com.example.expencetracker.util.BudgetCalculator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -132,6 +135,34 @@ class HomeFragment : Fragment() {
 
     // ─── Dashboard calculation & binding ─────────────────────────
     private fun refreshDashboard() {
+        // Update total-budget card (same as BudgetFragment)
+        val totalLimit = PrefsManager.getTotalBudget()
+        val monthTx    = BudgetCalculator.transactionsThisMonth(PrefsManager.loadTransactions())
+        val spent      = BudgetCalculator.spentTotal(monthTx)
+        val tvStatus   = binding.root.findViewById<TextView>(R.id.tvTotalStatus)
+        val progTotal  = binding.root.findViewById<ProgressBar>(R.id.progressTotalBudget)
+
+        if (totalLimit <= 0.0) {
+            tvStatus.text = getString(R.string.no_budget_set)
+            progTotal.progress = 0
+            progTotal.progressTintList = ContextCompat.getColorStateList(requireContext(), R.color.colorIncome)
+        } else {
+            val pct = (spent / totalLimit).coerceIn(0.0, 1.0)
+            progTotal.progress = (pct * 100).toInt()
+            progTotal.progressTintList = ContextCompat.getColorStateList(requireContext(), when {
+                pct < 0.75 -> R.color.colorIncome
+                pct <= 1   -> R.color.colorWarning
+                else       -> R.color.colorExpense
+            })
+            val fmt = NumberFormat.getCurrencyInstance().apply {
+                currency = java.util.Currency.getInstance(PrefsManager.getCurrency())
+            }
+            tvStatus.text = getString(
+                R.string.budget_status_fmt,
+                fmt.format(spent),
+                fmt.format(totalLimit)
+            )
+        }
         val allTx = PrefsManager.loadTransactions()
 
         val list = when (filterMode) {

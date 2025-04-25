@@ -42,9 +42,6 @@ import kotlin.math.abs
 
 class AnalyticsFragment : Fragment() {
 
-    // ─── Budget Progress Views ───────────────────────────────────
-    private lateinit var tvTotalStatus: TextView
-    private lateinit var progressTotal: ProgressBar
 
     // ─── Charts ────────────────────────────────────────────────
     private lateinit var cashFlowChart: LineChart
@@ -52,13 +49,13 @@ class AnalyticsFragment : Fragment() {
     private lateinit var toggleTimeFrame: MaterialButtonToggleGroup
     private lateinit var btnMonth: MaterialButton
     private lateinit var btnWeek: MaterialButton
-    
+
     // ─── Month-over-Month Change Views ─────────────────────────
     private lateinit var tvIncomeValue: TextView
     private lateinit var tvIncomeChange: TextView
     private lateinit var tvExpenseValue: TextView
     private lateinit var tvExpenseChange: TextView
-    
+
     // ─── Category Benchmark Views ─────────────────────────────
     private lateinit var spinnerPrimaryCategory: Spinner
     private lateinit var spinnerSecondaryCategory: Spinner
@@ -70,11 +67,11 @@ class AnalyticsFragment : Fragment() {
     private lateinit var progressSecondaryCategory: ProgressBar
     private lateinit var tvCategoryComparison: TextView
     private lateinit var tvCategoryDifference: TextView
-    
+
     private val dateFormat = SimpleDateFormat("MMM dd", Locale.getDefault())
     private val monthFormat = SimpleDateFormat("MMM", Locale.getDefault())
     private val weekFormat = SimpleDateFormat("'W'w", Locale.getDefault())
-    
+
     // Store category selections to avoid frequent reloading
     private var primaryCategoryIndex = 0
     private var secondaryCategoryIndex = 1
@@ -90,29 +87,26 @@ class AnalyticsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Budget progress views
-        tvTotalStatus = view.findViewById(R.id.tvTotalStatus)
-        progressTotal = view.findViewById(R.id.progressTotalBudget)
 
         // Cash flow chart
         cashFlowChart = view.findViewById(R.id.chartCashFlow)
         setupCashFlowChart()
-        
+
         // Income vs Expense chart
         incomeVsExpenseChart = view.findViewById(R.id.chartIncomeVsExpense)
         toggleTimeFrame = view.findViewById(R.id.toggleTimeFrame)
         btnMonth = view.findViewById(R.id.btnMonth)
         btnWeek = view.findViewById(R.id.btnWeek)
-        
+
         setupIncomeVsExpenseChart()
         setupTimeFrameToggle()
-        
+
         // Initialize Month-over-Month Views
         tvIncomeValue = view.findViewById(R.id.tvIncomeValue)
         tvIncomeChange = view.findViewById(R.id.tvIncomeChange)
         tvExpenseValue = view.findViewById(R.id.tvExpenseValue)
         tvExpenseChange = view.findViewById(R.id.tvExpenseChange)
-        
+
         // Initialize Category Benchmark Views
         spinnerPrimaryCategory = view.findViewById(R.id.spinnerPrimaryCategory)
         spinnerSecondaryCategory = view.findViewById(R.id.spinnerSecondaryCategory)
@@ -124,27 +118,27 @@ class AnalyticsFragment : Fragment() {
         progressSecondaryCategory = view.findViewById(R.id.progressSecondaryCategory)
         tvCategoryComparison = view.findViewById(R.id.tvCategoryComparison)
         tvCategoryDifference = view.findViewById(R.id.tvCategoryDifference)
-        
+
         setupCategorySpinners()
 
         // Update data
         refreshAnalytics()
     }
-    
+
     private fun setupCategorySpinners() {
         // Get all expense categories
         val expenseCategories = PrefsManager.loadCategories()
             .filter { it.type == TxType.EXPENSE }
             .map { "${it.emoji} ${it.name}" }
             .toMutableList()
-        
+
         // Add a default option if no categories exist
         if (expenseCategories.isEmpty()) {
             expenseCategories.add("�� Other")
         }
-        
+
         availableCategories = expenseCategories
-        
+
         // Create adapter for spinners
         val adapter = ArrayAdapter(
             requireContext(),
@@ -153,11 +147,11 @@ class AnalyticsFragment : Fragment() {
         ).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
-        
+
         // Set adapters to spinners
         spinnerPrimaryCategory.adapter = adapter
         spinnerSecondaryCategory.adapter = adapter
-        
+
         // Set initial selections to different values if possible
         if (expenseCategories.size > 1) {
             spinnerPrimaryCategory.setSelection(0)
@@ -165,38 +159,38 @@ class AnalyticsFragment : Fragment() {
             primaryCategoryIndex = 0
             secondaryCategoryIndex = 1
         }
-        
+
         // Set listeners
         spinnerPrimaryCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 primaryCategoryIndex = position
                 updateCategoryComparison()
             }
-            
+
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing
             }
         }
-        
+
         spinnerSecondaryCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 secondaryCategoryIndex = position
                 updateCategoryComparison()
             }
-            
+
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 // Do nothing
             }
         }
-        
+
         // Initial update
         updateCategoryComparison()
     }
-    
+
     private fun setupTimeFrameToggle() {
         // Default to month view
         btnMonth.isChecked = true
-        
+
         toggleTimeFrame.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 // Refresh chart data based on selection
@@ -217,15 +211,12 @@ class AnalyticsFragment : Fragment() {
 
     // ─── Analytics refresh ───────────────────────────────────────
     private fun refreshAnalytics() {
-        // Update budget progress
-        updateBudgetProgress()
-        
         // Load all transactions
         val allTx = PrefsManager.loadTransactions()
-        
+
         // Update cash flow chart
         updateCashFlowChart(allTx)
-        
+
         // Update income vs expense chart based on selected time frame
         if (::toggleTimeFrame.isInitialized) {
             if (toggleTimeFrame.checkedButtonId == R.id.btnMonth) {
@@ -234,42 +225,14 @@ class AnalyticsFragment : Fragment() {
                 updateIncomeVsExpenseChartWeekly(allTx)
             }
         }
-        
+
         // Update month-over-month comparisons
         updateMonthOverMonthChange(allTx)
-        
+
         // Update category benchmarks
         updateCategoryComparison()
     }
 
-    // ─── Budget Progress Update ───────────────────────────────────
-    private fun updateBudgetProgress() {
-        val totalLimit = PrefsManager.getTotalBudget()
-        val monthTx = BudgetCalculator.transactionsThisMonth(PrefsManager.loadTransactions())
-        val spent = BudgetCalculator.spentTotal(monthTx)
-
-        // total progress
-        if (totalLimit <= 0.0) {
-            tvTotalStatus.text = getString(R.string.no_budget_set)
-            progressTotal.progress = 0
-            progressTotal.progressTintList =
-                ContextCompat.getColorStateList(requireContext(), R.color.colorIncome)
-        } else {
-            val pct = (spent / totalLimit).coerceIn(0.0, 1.0)
-            progressTotal.progress = (pct * 100).toInt()
-            progressTotal.progressTintList =
-                ContextCompat.getColorStateList(requireContext(), when {
-                    pct < 0.75 -> R.color.colorIncome
-                    pct <= 1   -> R.color.colorWarning
-                    else       -> R.color.colorExpense
-                })
-            tvTotalStatus.text = getString(
-                R.string.budget_status_fmt,
-                CurrencyFormatter.format(spent),
-                CurrencyFormatter.format(totalLimit)
-            )
-        }
-    }
 
     // ─── Cash Flow Chart Setup and Update ───────────────────────
     private fun setupCashFlowChart() {

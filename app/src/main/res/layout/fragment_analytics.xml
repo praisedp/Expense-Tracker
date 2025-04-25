@@ -27,51 +27,6 @@
             android:textColor="@color/textPrimary"
             android:textStyle="bold" />
 
-        <!-- Monthly Budget Title -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="4dp"
-            android:text="Monthly Budget"
-            android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-            android:textColor="@color/textPrimary"
-            android:textStyle="bold" />
-
-        <!-- Budget Progress Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardTotalBudget"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardElevation="2dp"
-            app:cardCornerRadius="16dp">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:padding="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/tvTotalStatus"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
-                    android:textColor="@color/textPrimary"
-                    android:textStyle="bold"
-                    android:text="No monthly budget set"/>
-
-                <ProgressBar
-                    android:id="@+id/progressTotalBudget"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="12dp"
-                    android:layout_marginTop="12dp"
-                    android:progressDrawable="@drawable/progress_gradient"
-                    android:max="100"/>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
 
         <!-- Cash Flow Title -->
         <TextView
